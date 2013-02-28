@@ -3,3 +3,4 @@
 # Ubuntu patches
 
 100-vblank-on.diff
+101-Revert-nouveau-dri2-fix-pixmap-window-offset-calcs.patch

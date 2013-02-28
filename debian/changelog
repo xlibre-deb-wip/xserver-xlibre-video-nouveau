@@ -1,3 +1,10 @@
+xserver-xorg-video-nouveau (1:1.0.3-0ubuntu0.2) quantal-proposed; urgency=low
+
+  * Revert kwin fix, it caused a regression.
+    - 101-Revert-nouveau-dri2-fix-pixmap-window-offset-calcs.patch
+
+ -- Maarten Lankhorst <maarten.lankhorst@ubuntu.com>  Thu, 28 Feb 2013 12:35:09 +0100
+
 xserver-xorg-video-nouveau (1:1.0.3-0ubuntu0.1) quantal-proposed; urgency=low
 
   [ Maarten Lankhorst ]

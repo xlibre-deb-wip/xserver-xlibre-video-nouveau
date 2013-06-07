@@ -1,3 +1,9 @@
+xserver-xorg-video-nouveau (1:1.0.7-2) UNRELEASED; urgency=low
+
+  * Merge upstream master branch up to commit bf72ae1f65.
+
+ -- Sven Joachim <svenjoac@gmx.de>  Fri, 07 Jun 2013 20:58:05 +0200
+
 xserver-xorg-video-nouveau (1:1.0.7-1) experimental; urgency=low
 
   [ Maarten Lankhorst ]

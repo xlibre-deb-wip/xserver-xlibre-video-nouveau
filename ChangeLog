@@ -1,3 +1,104 @@
+commit bf72ae1f6574c540f0afc2d7845d41df43507a8f
+Author: Ben Skeggs <bskeggs@redhat.com>
+Date:   Wed May 15 22:05:01 2013 +1000
+
+    nve0: envyas isn't overly clever.. avoid short-form instructions
+    
+    Signed-off-by: Ben Skeggs <bskeggs@redhat.com>
+
+commit 41cc2f24c43d2656ac722f594aaebad93e37dfec
+Author: Ben Skeggs <bskeggs@redhat.com>
+Date:   Wed May 15 21:13:11 2013 +1000
+
+    nvc0-nve0: decompile shaders into their source, add basic build system
+    
+    Far, far easier to maintain this way...
+    
+    Signed-off-by: Ben Skeggs <bskeggs@redhat.com>
+
+commit 1edb5d7ae450a32fe6607d536653cf733444e7e2
+Author: Ben Skeggs <bskeggs@redhat.com>
+Date:   Wed May 15 20:47:44 2013 +1000
+
+    nvc0-nve0: split shader code from their headers
+    
+    Signed-off-by: Ben Skeggs <bskeggs@redhat.com>
+
+commit c18439f759bec267a3b67d375dcbfeb8a6fd7b6a
+Author: Dave Airlie <airlied@redhat.com>
+Date:   Mon May 13 13:55:51 2013 +1000
+
+    nouveau: clean up nv entity index declarations.
+    
+    Signed-off-by: Dave Airlie <airlied@redhat.com>
+
+commit d3b52efe959f255784f5ead16d7276ca0fb4cdb1
+Author: Dave Airlie <airlied@redhat.com>
+Date:   Mon May 13 13:35:12 2013 +1000
+
+    nouveau: attempt to fix zaphod since dri1 code removal
+    
+    j_v on #nouveau bisected b1a630b48210d6a3c44994fce1b73273000ace5c has
+    breaking zaphod, on review it was trying to open the drm fd a second time
+    which was unnecessary.
+    
+    Avoid the problem by storing the nv fd in an entity and have share it between
+    the two scrn info recs.
+    
+    Signed-off-by: Dave Airlie <airlied@redhat.com>
+
+commit 50426ac83f9f077791e4df8c04fc0ecefc06e8ab
+Author: Marek Vasut <marex@denx.de>
+Date:   Fri May 3 15:48:55 2013 +0200
+
+    nouveau: Allow 3D accelerators with output ports
+    
+    This patch let's cards with PCI class 0x30200 (3D controller) be
+    operated by the nouveau driver as well. The nv Quadro NVS 450 is
+    one such card, where the first GPU has PCI class 0x30000 and the
+    other GPU has PCI class 0x30200. By ignoring the 1 << 9 bit in
+    the PCI class mask, displays attached to the other GPU can also
+    be used now.
+    
+    Signed-off-by: Marek Vasut <marex@denx.de>
+    Cc: Dave Airlie <airlied@redhat.com>
+    Cc: Ben Skeggs <skeggsb@gmail.com>
+    Signed-off-by: Ben Skeggs <bskeggs@redhat.com>
+
+commit 2fa3397e348161a3394e2b456f065921272a056a
+Author: Ilia Mirkin <imirkin@alum.mit.edu>
+Date:   Fri May 3 09:59:39 2013 -0400
+
+    nouveau_xv: Avoid reading off the end of the source image on NV50+
+    
+    The 'w' argument to NVCopyNV12ColorPlanes is used to index into the
+    source image. line_len is rounded up to 8 on NV50+, so if the source
+    image (+ left offset) is not rounded to 8, NVCopyNV12ColorPlanes could
+    read past the end of the array and crash X. This change can cause the
+    last few horizontal pixels of dst to not be initialized, but they
+    should be truncated by the renderer anyways.
+    
+    See https://bugs.freedesktop.org/show_bug.cgi?id=63263
+    
+    Signed-off-by: Ilia Mirkin <imirkin@alum.mit.edu>
+    Signed-off-by: Ben Skeggs <bskeggs@redhat.com>
+
+commit 81f9ab38f0a5de7217227dd17a4d0e50dffd0d28
+Author: Ben Skeggs <bskeggs@redhat.com>
+Date:   Thu May 2 11:38:07 2013 +1000
+
+    nvf0: recognise as supported chipset
+    
+    Signed-off-by: Ben Skeggs <bskeggs@redhat.com>
+
+commit 653c95d60af0f7c19a1d2f3b76dd17bb169d9c9b
+Author: Ben Skeggs <bskeggs@redhat.com>
+Date:   Mon Apr 29 10:07:59 2013 +1000
+
+    nve0: explicitly ask kernel for copy2 object
+    
+    Signed-off-by: Ben Skeggs <bskeggs@redhat.com>
+
 commit 6771424d79e541d2fa7253a582db3dc9108fd97d
 Author: Maarten Lankhorst <maarten.lankhorst@canonical.com>
 Date:   Wed Mar 27 09:50:03 2013 +0100

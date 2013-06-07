@@ -31,6 +31,11 @@
 
 /* NV50 */
 typedef struct _NVRec *NVPtr;
+
+typedef struct {
+	int fd;
+} NVEntRec, *NVEntPtr;
+
 typedef struct _NVRec {
     uint32_t              Architecture;
     EntityInfoPtr       pEnt;
@@ -103,6 +108,7 @@ typedef struct _NVRec {
 	struct nouveau_object *Nv2D;
 	struct nouveau_object *Nv3D;
 	struct nouveau_object *NvSW;
+	struct nouveau_object *NvCOPY;
 	struct nouveau_bo *scratch;
 
 	Bool ce_enabled;

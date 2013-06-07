@@ -60,7 +60,7 @@ static Bool	NVUnmapMem(ScrnInfoPtr pScrn);
 
 #define NOUVEAU_PCI_DEVICE(_vendor_id, _device_id)                             \
 	{ (_vendor_id), (_device_id), PCI_MATCH_ANY, PCI_MATCH_ANY,            \
-	  0x00030000, 0x00ffffff, 0 }
+	  0x00030000, 0x00ff0000, 0 }
 
 static const struct pci_id_match nouveau_device_match[] = {
 	NOUVEAU_PCI_DEVICE(0x12d2, PCI_MATCH_ANY),
@@ -79,6 +79,13 @@ static Bool NVPlatformProbe(DriverPtr driver,
 				struct xf86_platform_device *dev,
 				intptr_t dev_match_data);
 #endif
+
+_X_EXPORT int NVEntityIndex = -1;
+
+static int getNVEntityIndex(void)
+{
+	return NVEntityIndex;
+}
 
 /*
  * This contains the functions needed by the server after loading the
@@ -228,6 +235,8 @@ NVDriverFunc(ScrnInfoPtr scrn, xorgDriverFuncOp op, void *data)
 static void
 NVInitScrn(ScrnInfoPtr pScrn, int entity_num)
 {
+	DevUnion *pPriv;
+
 	pScrn->driverVersion    = NV_VERSION;
 	pScrn->driverName       = NV_DRIVER_NAME;
 	pScrn->name             = NV_NAME;
@@ -242,6 +251,15 @@ NVInitScrn(ScrnInfoPtr pScrn, int entity_num)
 	pScrn->FreeScreen       = NVFreeScreen;
 
 	xf86SetEntitySharable(entity_num);
+	if (NVEntityIndex == -1)
+	    NVEntityIndex = xf86AllocateEntityPrivateIndex();
+
+	pPriv = xf86GetEntityPrivate(entity_num,
+				     NVEntityIndex);
+	if (!pPriv->ptr) {
+		pPriv->ptr = xnfcalloc(sizeof(NVEntRec), 1);
+	}
+
 	xf86SetEntityInstanceForScreen(pScrn, entity_num,
 					xf86GetNumEntityInstances(entity_num) - 1);
 }
@@ -303,6 +321,7 @@ NVHasKMS(struct pci_device *pci_dev)
 	case 0xc0:
 	case 0xd0:
 	case 0xe0:
+	case 0xf0:
 		break;
 	default:
 		xf86DrvMsg(-1, X_ERROR, "Unknown chipset: NV%02x\n", chipset);
@@ -682,14 +701,36 @@ nouveau_setup_capabilities(ScrnInfoPtr pScrn)
 #endif
 }
 
+NVEntPtr NVEntPriv(ScrnInfoPtr pScrn)
+{
+	DevUnion     *pPriv;
+	NVPtr  pNv   = NVPTR(pScrn);
+	pPriv = xf86GetEntityPrivate(pNv->pEnt->index,
+				     getNVEntityIndex());
+	return pPriv->ptr;
+}
+
 static Bool NVOpenDRMMaster(ScrnInfoPtr pScrn)
 {
 	NVPtr pNv = NVPTR(pScrn);
+	NVEntPtr pNVEnt = NVEntPriv(pScrn);
 	struct pci_device *dev = pNv->PciInfo;
 	char *busid;
 	drmSetVersion sv;
 	int err;
 	int ret;
+
+	if (pNVEnt->fd) {
+		xf86DrvMsg(pScrn->scrnIndex, X_INFO,
+			   " reusing fd for second head\n");
+		ret = nouveau_device_wrap(pNVEnt->fd, 0, &pNv->dev);
+		if (ret) {
+			xf86DrvMsg(pScrn->scrnIndex, X_ERROR,
+				"[drm] error creating device\n");
+			return FALSE;
+		}
+		return TRUE;
+	}
 
 #if XORG_VERSION_CURRENT >= XORG_VERSION_NUMERIC(1,9,99,901,0)
 	XNFasprintf(&busid, "pci:%04x:%02x:%02x.%d",
@@ -720,6 +761,7 @@ static Bool NVOpenDRMMaster(ScrnInfoPtr pScrn)
 		nouveau_device_del(&pNv->dev);
 		return FALSE;
 	}
+	pNVEnt->fd = pNv->dev->fd;
 	return TRUE;
 }
 
@@ -854,6 +896,7 @@ NVPreInit(ScrnInfoPtr pScrn, int flags)
 		pNv->Architecture = NV_ARCH_C0;
 		break;
 	case 0xe0:
+	case 0xf0:
 		pNv->Architecture = NV_ARCH_E0;
 		break;
 	default:

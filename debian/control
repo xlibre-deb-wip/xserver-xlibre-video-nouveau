@@ -25,8 +25,8 @@ Build-Depends:
  quilt,
 Standards-Version: 3.9.3
 Homepage: http://nouveau.freedesktop.org/wiki/
-Vcs-Git: git://git.debian.org/git/pkg-xorg/driver/xserver-xorg-video-nouveau
-Vcs-Browser: http://git.debian.org/?p=pkg-xorg/driver/xserver-xorg-video-nouveau.git
+Vcs-Git: git://anonscm.debian.org/pkg-xorg/driver/xserver-xorg-video-nouveau
+Vcs-Browser: http://anonscm.debian.org/gitweb/?p=pkg-xorg/driver/xserver-xorg-video-nouveau.git
 
 Package: xserver-xorg-video-nouveau
 Architecture: linux-any

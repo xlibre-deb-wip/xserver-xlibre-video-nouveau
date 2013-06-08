@@ -1,11 +1,12 @@
-xserver-xorg-video-nouveau (1:1.0.7-2) UNRELEASED; urgency=low
+xserver-xorg-video-nouveau (1:1.0.7-2) unstable; urgency=low
 
   * Merge upstream master branch up to commit bf72ae1f65.
     - Fix zaphod setups (Closes: #708310).
   * Switch Vcs-* fields to anonscm.debian.org.
   * Bump Standards-Version to 3.9.4, no changes needed.
+  * Upload to unstable.
 
- -- Sven Joachim <svenjoac@gmx.de>  Fri, 07 Jun 2013 20:58:05 +0200
+ -- Sven Joachim <svenjoac@gmx.de>  Sat, 08 Jun 2013 13:35:49 +0200
 
 xserver-xorg-video-nouveau (1:1.0.7-1) experimental; urgency=low
 

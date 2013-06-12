@@ -1,3 +1,99 @@
+commit 7f20a6af25ae28452ec9c971bfa2227857e6ee93
+Author: Maarten Lankhorst <maarten.lankhorst@canonical.com>
+Date:   Wed Jun 12 10:46:39 2013 +0200
+
+    bump to 1.0.8
+
+commit 1fda669c0e5a25eac7f9f1e9a743120cae50ff51
+Author: Emil Velikov <emil.l.velikov@gmail.com>
+Date:   Sat Feb 16 20:48:47 2013 +0000
+
+    configure: printout the configuration info
+    
+    Let the bikeshedding begin
+    
+    Signed-off-by: Emil Velikov <emil.l.velikov@gmail.com>
+
+commit 45dbcaac301efce04d0bb492337f4febf8129ed9
+Author: Emil Velikov <emil.l.velikov@gmail.com>
+Date:   Sat Feb 16 20:48:45 2013 +0000
+
+    nouveau: mandate dri2 build
+    
+    Building nouveau without dri2 is just silly
+    
+    Signed-off-by: Emil Velikov <emil.l.velikov@gmail.com>
+
+commit ea8d225fe100ecabb72e3cc0a92372f16afb10b3
+Author: Emil Velikov <emil.l.velikov@gmail.com>
+Date:   Sat Feb 16 20:48:44 2013 +0000
+
+    dri1: purge the final references
+    
+    Signed-off-by: Emil Velikov <emil.l.velikov@gmail.com>
+
+commit b5d1a9bd269c9d2758fee37492cdcccc976fcc3b
+Author: Emil Velikov <emil.l.velikov@gmail.com>
+Date:   Sat Feb 16 20:48:43 2013 +0000
+
+    nouveau: Do not load dri {sub,}module
+    
+    Nouveau does not use dri1, thus loading XFree86-DRI is not needed
+    On the other hand, we do use dri2
+    
+    As a side effect, purge the 'set-but-unused' variable pLibDRMVersion
+    
+    Signed-off-by: Emil Velikov <emil.l.velikov@gmail.com>
+
+commit 7c3f6cd8d6b14aea561fb877f6006d339d156f35
+Author: Emil Velikov <emil.l.velikov@gmail.com>
+Date:   Sat Feb 16 20:48:42 2013 +0000
+
+    nouveau: stop using dri1 function DRICreatePCIBusID
+    
+    Step 1 to completely rip out dri1 out of nouveau
+    
+    Signed-off-by: Emil Velikov <emil.l.velikov@gmail.com>
+
+commit 3b1a45325d5fd46f0e7fad17168742b4c9a2465a
+Author: Maarten Lankhorst <maarten.lankhorst@canonical.com>
+Date:   Wed Jun 12 10:30:32 2013 +0200
+
+    update makefiles for make distcheck
+
+commit b82aacd3e72b52240181569c8b0abb55c1f716d5
+Author: Emil Velikov <emil.l.velikov@gmail.com>
+Date:   Sat Feb 16 12:48:46 2013 -0800
+
+    configure: require xorg-macros 1.8
+    
+    Explicitly check for xorg-macros 1.8, as a subtle hint
+    to update your build deps if building your own ddx
+    
+    Signed-off-by: Emil Velikov <emil.l.velikov@gmail.com>
+
+commit 4f667b40f41e311fbe302237efe173bcc24fb8bb
+Author: Maarten Lankhorst <maarten.lankhorst@canonical.com>
+Date:   Mon Jun 10 14:29:59 2013 +0200
+
+    fix a xfree from previous patch
+    
+    Signed-off-by: Maarten Lankhorst <maarten.lankhorst@canonical.com>
+
+commit 2e34d11541e1f987c7ca0556592cb16f4d232299
+Author: Maarten Lankhorst <maarten.lankhorst@canonical.com>
+Date:   Mon Jun 10 13:06:35 2013 +0200
+
+    nouveau: enable support for normal optimus configuration
+    
+    nvd7 has no display engine, only enable sink output capability
+    if there is a crtc.
+    
+    drmmode doesn't work without crtc's, so prevent crashes by skipping
+    the drmmode code in that case.
+    
+    Signed-off-by: Maarten Lankhorst <maarten.lankhorst@canonical.com>
+
 commit bf72ae1f6574c540f0afc2d7845d41df43507a8f
 Author: Ben Skeggs <bskeggs@redhat.com>
 Date:   Wed May 15 22:05:01 2013 +1000

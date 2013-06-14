@@ -1,0 +1,42 @@
+commit 3a48b65b5bfc9cf4c3049923cfdba18d78097c88
+Author: Sven Joachim <svenjoac@gmx.de>
+Date:   Thu Jun 13 20:33:28 2013 +0200
+
+    Link against libdrm
+    
+    The DDX uses symbols from libdrm but currently does not link against
+    it, but rather relies on indirect linkage from libdrm_nouveau.  This
+    could lead to insufficient dependencies in distribution packages, seen
+    in http://bugs.debian.org/633786.
+    
+    Signed-off-by: Sven Joachim <svenjoac@gmx.de>
+
+diff --git a/configure.ac b/configure.ac
+index 6f7f870..b54b8cd 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -80,6 +80,7 @@ XORG_DRIVER_CHECK_EXT(DPMSExtension, xextproto)
+ XORG_DRIVER_CHECK_EXT(DRI2, [dri2proto >= 2.6])
+ 
+ # Checks for pkg-config packages
++PKG_CHECK_MODULES(LIBDRM, [libdrm >= 2.4.17])
+ PKG_CHECK_MODULES(LIBDRM_NOUVEAU, [libdrm_nouveau >= 2.4.25])
+ AC_SUBST(LIBDRM_NOUVEAU_CFLAGS)
+ AC_SUBST(LIBDRM_NOUVEAU_LIBS)
+diff --git a/src/Makefile.am b/src/Makefile.am
+index f54e135..5836ead 100644
+--- a/src/Makefile.am
++++ b/src/Makefile.am
+@@ -23,10 +23,10 @@
+ # -avoid-version prevents gratuitous .0.0.0 version numbers on the end
+ # _ladir passes a dummy rpath to libtool so the thing will actually link
+ # TODO: -nostdlib/-Bstatic/-lgcc platform magic, not installing the .a, etc.
+-AM_CFLAGS = @XORG_CFLAGS@ @LIBUDEV_CFLAGS@ @LIBDRM_NOUVEAU_CFLAGS@
++AM_CFLAGS = @XORG_CFLAGS@ @LIBUDEV_CFLAGS@ @LIBDRM_NOUVEAU_CFLAGS@ @LIBDRM_CFLAGS@
+ nouveau_drv_la_LTLIBRARIES = nouveau_drv.la
+ nouveau_drv_la_LDFLAGS = -module -avoid-version @LIBDRM_NOUVEAU_LIBS@ \
+-			 @LIBUDEV_LIBS@
++			 @LIBUDEV_LIBS@ @LIBDRM_LIBS@
+ nouveau_drv_ladir = @moduledir@/drivers
+ 
+ nouveau_drv_la_SOURCES = \

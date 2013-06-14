@@ -8,6 +8,7 @@ xserver-xorg-video-nouveau (1:1.0.8-1) UNRELEASED; urgency=low
   [ Sven Joachim ]
   * New patch 02-link-against-libdrm.diff: link the driver against libdrm
     to avoid potentially insufficient dependencies (Closes: #633786).
+  * Enable verbose build logs.
 
  -- Maarten Lankhorst <maarten.lankhorst@ubuntu.com>  Wed, 12 Jun 2013 10:58:45 +0200
 

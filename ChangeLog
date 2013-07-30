@@ -1,3 +1,104 @@
+commit 300c5a32d79cf507b5fede96710335bcd316eccb
+Author: Dave Airlie <airlied@redhat.com>
+Date:   Tue Jul 30 15:28:06 2013 +1000
+
+    bump to 1.0.9 for release
+    
+    Signed-off-by: Dave Airlie <airlied@redhat.com>
+
+commit be44e7804862b4c276ed4d4717b1212920f428e6
+Author: Dave Airlie <airlied@gmail.com>
+Date:   Tue Jul 30 15:26:46 2013 +1000
+
+    nouveau: fix crash when xinerama is enabled.
+    
+    Signed-off-by: Dave Airlie <airlied@redhat.com>
+
+commit 588252556d1c84bf6793bc22edd48e6650a0f1b9
+Author: Dave Airlie <airlied@gmail.com>
+Date:   Tue Jul 30 15:14:22 2013 +1000
+
+    fix make distcheck.
+    
+    add all the nvf0 stuff.
+    
+    Signed-off-by: Dave Airlie <airlied@redhat.com>
+
+commit 29aecda1b5bdb95700894083874492a6d5dfc08a
+Author: Dave Airlie <airlied@gmail.com>
+Date:   Tue Jul 30 14:10:51 2013 +1000
+
+    drmmode: add support for multi-screen reverse optimus
+    
+    Initial reverse optimus didn't consider multiple screens, so
+    this overhauls the code to use the new X server interface,
+    and allows for multiple outputs on the nvidia to be used with
+    the intel doing the rendering.
+    
+    Signed-off-by: Dave Airlie <airlied@redhat.com>
+
+commit d7ae886260b480da0ea4cad22eb6f7b7d12f07b0
+Author: Ilia Mirkin <imirkin@alum.mit.edu>
+Date:   Mon Jul 29 21:03:54 2013 -0400
+
+    nouveau: use uppercase for chipset name
+    
+    Right now the log will output e.g. NVaa instead of NVAA, which is how we
+    usually talk about it.
+    
+    Signed-off-by: Ilia Mirkin <imirkin@alum.mit.edu>
+    Signed-off-by: Ben Skeggs <bskeggs@redhat.com>
+
+commit 4492cf90c2a7fe27badf6f3f0f296755a65e1e83
+Author: Ilia Mirkin <imirkin@alum.mit.edu>
+Date:   Mon Jul 29 02:40:39 2013 -0400
+
+    xv: speed up YV12 -> NV12 conversion using SSE2 if available
+    
+    memcpy() goes from taking 45% to 66% of total function time, which
+    translates to a 30% decrease in NVPutImage runtime.
+    
+    Signed-off-by: Ilia Mirkin <imirkin@alum.mit.edu>
+    Signed-off-by: Ben Skeggs <bskeggs@redhat.com>
+
+commit 08c667b06d28756d0d32f82bd736b0bdf2b4448e
+Author: Ilia Mirkin <imirkin@alum.mit.edu>
+Date:   Mon Jul 29 02:40:38 2013 -0400
+
+    xv: fix last pixel for big-endian machines in YV12 -> NV12 conversion
+    
+    Signed-off-by: Ilia Mirkin <imirkin@alum.mit.edu>
+    Signed-off-by: Ben Skeggs <bskeggs@redhat.com>
+
+commit 8c1c5d4f212958559132506d51dcfeeb17f60371
+Author: Ben Skeggs <bskeggs@redhat.com>
+Date:   Wed May 15 21:34:13 2013 +1000
+
+    nvf0: implement EXA and XVideo acceleration
+    
+    Signed-off-by: Ben Skeggs <bskeggs@redhat.com>
+
+commit 779b8d44b5ff84b87b52600a2f010ac19cd396ad
+Author: Sven Joachim <svenjoac@gmx.de>
+Date:   Thu Jun 13 20:41:53 2013 +0200
+
+    Link against libdrm
+    
+    The DDX uses symbols from libdrm but currently does not link against
+    it, but rather relies on indirect linkage from libdrm_nouveau.  This
+    could lead to insufficient dependencies in distribution packages, seen
+    in http://bugs.debian.org/633786.
+    
+    Signed-off-by: Sven Joachim <svenjoac@gmx.de>
+
+commit e96ae2b129df2a50d1d3839084df4fb1868d914d
+Author: Maarten Lankhorst <maarten.lankhorst@canonical.com>
+Date:   Wed Jun 12 11:05:23 2013 +0200
+
+    fixup the dri2 check
+    
+    Signed-off-by: Maarten Lankhorst <maarten.lankhorst@canonical.com>
+
 commit 7f20a6af25ae28452ec9c971bfa2227857e6ee93
 Author: Maarten Lankhorst <maarten.lankhorst@canonical.com>
 Date:   Wed Jun 12 10:46:39 2013 +0200

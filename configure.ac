@@ -22,7 +22,7 @@
 
 AC_PREREQ([2.60])
 AC_INIT([xf86-video-nouveau],
-        [1.0.8],
+        [1.0.9],
         [https://bugs.freedesktop.org/enter_bug.cgi?product=xorg],
         [xf86-video-nouveau])
 
@@ -77,14 +77,15 @@ XORG_DRIVER_CHECK_EXT(RANDR, randrproto)
 XORG_DRIVER_CHECK_EXT(RENDER, renderproto)
 XORG_DRIVER_CHECK_EXT(XV, videoproto)
 XORG_DRIVER_CHECK_EXT(DPMSExtension, xextproto)
+XORG_DRIVER_CHECK_EXT(DRI2, [dri2proto >= 2.6])
 
 # Checks for pkg-config packages
+PKG_CHECK_MODULES(LIBDRM, [libdrm >= 2.4.17])
 PKG_CHECK_MODULES(LIBDRM_NOUVEAU, [libdrm_nouveau >= 2.4.25])
 AC_SUBST(LIBDRM_NOUVEAU_CFLAGS)
 AC_SUBST(LIBDRM_NOUVEAU_LIBS)
 
 PKG_CHECK_MODULES(XORG, [xorg-server >= 1.8] xproto fontsproto libdrm $REQUIRED_MODULES)
-PKG_CHECK_MODULES(DRI2, [dri2proto >= 2.6])
 PKG_CHECK_MODULES(XEXT, [xextproto >= 7.0.99.1],
 		  HAVE_XEXTPROTO_71="yes"; AC_DEFINE(HAVE_XEXTPROTO_71, 1, [xextproto 7.1 available]),
 		  HAVE_XEXTPROTO_71="no")

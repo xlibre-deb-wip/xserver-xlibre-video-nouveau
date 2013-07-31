@@ -34,7 +34,7 @@ Depends:
  ${shlibs:Depends},
  ${misc:Depends},
  ${xviddriver:Depends},
-Recommends: libgl1-mesa-dri (>= 7.11.1)
+Recommends: libgl1-mesa-dri (>= 9.0)
 Provides: ${xviddriver:Provides}
 Description: X.Org X server -- Nouveau display driver
  This driver for the X.Org X server (see xserver-xorg for a further description)

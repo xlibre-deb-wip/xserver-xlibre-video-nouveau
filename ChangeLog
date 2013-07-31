@@ -1,3 +1,11 @@
+commit 1df177f35a05db505577cdc929e63fde906a704b
+Author: Dave Airlie <airlied@gmail.com>
+Date:   Wed Jul 31 10:51:03 2013 +1000
+
+    nouveau: fix build on ppc by wrapping immintrin include.
+    
+    Signed-off-by: Dave Airlie <airlied@redhat.com>
+
 commit 300c5a32d79cf507b5fede96710335bcd316eccb
 Author: Dave Airlie <airlied@redhat.com>
 Date:   Tue Jul 30 15:28:06 2013 +1000

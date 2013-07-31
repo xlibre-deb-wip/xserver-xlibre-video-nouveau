@@ -1,11 +1,11 @@
-xserver-xorg-video-nouveau (1:1.0.9-1) UNRELEASED; urgency=low
+xserver-xorg-video-nouveau (1:1.0.9-1) unstable; urgency=low
 
   * New upstream release.
   * Remove patch 02-link-against-libdrm.diff, applied upstream.
   * Bump Recommends on libgl1-mesa-dri to (>= 9.0), AIGLX does
     not work with older versions.
 
- -- Sven Joachim <svenjoac@gmx.de>  Tue, 30 Jul 2013 08:47:33 +0200
+ -- Sven Joachim <svenjoac@gmx.de>  Wed, 31 Jul 2013 18:09:09 +0200
 
 xserver-xorg-video-nouveau (1:1.0.8-1) unstable; urgency=low
 

@@ -24,10 +24,10 @@ Build-Depends:
  libtool,
  xutils-dev,
  quilt,
-Standards-Version: 3.9.3
+Standards-Version: 3.9.4
 Homepage: http://nouveau.freedesktop.org/wiki/
-Vcs-Git: git://git.debian.org/git/pkg-xorg/driver/xserver-xorg-video-nouveau
-Vcs-Browser: http://git.debian.org/?p=pkg-xorg/driver/xserver-xorg-video-nouveau.git
+Vcs-Git: git://anonscm.debian.org/pkg-xorg/driver/xserver-xorg-video-nouveau
+Vcs-Browser: http://anonscm.debian.org/gitweb/?p=pkg-xorg/driver/xserver-xorg-video-nouveau.git
 
 Package: xserver-xorg-video-nouveau
 Architecture: linux-any
@@ -35,7 +35,7 @@ Depends:
  ${shlibs:Depends},
  ${misc:Depends},
  ${xviddriver:Depends},
-Recommends: libgl1-mesa-dri (>= 7.11.1)
+Recommends: libgl1-mesa-dri (>= 9.0)
 Provides: ${xviddriver:Provides}
 Description: X.Org X server -- Nouveau display driver
  This driver for the X.Org X server (see xserver-xorg for a further description)

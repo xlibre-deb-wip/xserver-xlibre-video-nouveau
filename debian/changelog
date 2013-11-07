@@ -1,3 +1,9 @@
+xserver-xorg-video-nouveau (1:1.0.10-1) UNRELEASED; urgency=low
+
+  * New upstream release.
+
+ -- Maarten Lankhorst <maarten.lankhorst@ubuntu.com>  Thu, 07 Nov 2013 09:21:40 +0100
+
 xserver-xorg-video-nouveau (1:1.0.9-2) unstable; urgency=low
 
   * Cherry-pick commit 1df177f35a05 from upstream to fix build

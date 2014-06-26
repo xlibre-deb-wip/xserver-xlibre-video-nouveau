@@ -47,26 +47,22 @@ NVAccelM2MF(NVPtr pNv, int w, int h, int cpp, uint32_t srcoff, uint32_t dstoff,
 	    struct nouveau_bo *src, int sd, int sp, int sh, int sx, int sy,
 	    struct nouveau_bo *dst, int dd, int dp, int dh, int dx, int dy)
 {
-	if (pNv->Architecture >= NV_ARCH_E0)
+	if (pNv->ce_rect && pNv->ce_enabled)
+		return pNv->ce_rect(pNv->ce_pushbuf, pNv->NvCopy, w, h, cpp,
+				    src, srcoff, sd, sp, sh, sx, sy,
+				    dst, dstoff, dd, dp, dh, dx, dy);
+	else
+	if (pNv->Architecture >= NV_KEPLER)
 		return NVE0EXARectCopy(pNv, w, h, cpp,
 				       src, srcoff, sd, sp, sh, sx, sy,
 				       dst, dstoff, dd, dp, dh, dx, dy);
 	else
-	if (pNv->Architecture >= NV_ARCH_C0 && pNv->NvCopy)
-		return NVC0EXARectCopy(pNv, w, h, cpp,
-				       src, srcoff, sd, sp, sh, sx, sy,
-				       dst, dstoff, dd, dp, dh, dx, dy);
-	if (pNv->Architecture >= NV_ARCH_C0)
+	if (pNv->Architecture >= NV_FERMI)
 		return NVC0EXARectM2MF(pNv, w, h, cpp,
 				       src, srcoff, sd, sp, sh, sx, sy,
 				       dst, dstoff, dd, dp, dh, dx, dy);
 	else
-	if (pNv->Architecture >= NV_ARCH_50 && pNv->NvCopy)
-		return NVA3EXARectCopy(pNv, w, h, cpp,
-				       src, srcoff, sd, sp, sh, sx, sy,
-				       dst, dstoff, dd, dp, dh, dx, dy);
-	else
-	if (pNv->Architecture >= NV_ARCH_50)
+	if (pNv->Architecture >= NV_TESLA)
 		return NV50EXARectM2MF(pNv, w, h, cpp,
 				       src, srcoff, sd, sp, sh, sx, sy,
 				       dst, dstoff, dd, dp, dh, dx, dy);
@@ -206,7 +202,7 @@ nv50_style_tiled_pixmap(PixmapPtr ppix)
 	ScrnInfoPtr pScrn = xf86ScreenToScrn(ppix->drawable.pScreen);
 	NVPtr pNv = NVPTR(pScrn);
 
-	return pNv->Architecture >= NV_ARCH_50 &&
+	return pNv->Architecture >= NV_TESLA &&
 	       nouveau_pixmap_bo(ppix)->config.nv50.memtype;
 }
 
@@ -323,13 +319,13 @@ nouveau_exa_upload_to_screen(PixmapPtr pdpix, int x, int y, int w, int h,
 	/* try hostdata transfer */
 	if (w * h * cpp < 16*1024) /* heuristic */
 	{
-		if (pNv->Architecture < NV_ARCH_50) {
+		if (pNv->Architecture < NV_TESLA) {
 			if (NV04EXAUploadIFC(pScrn, src, src_pitch, pdpix,
 					     x, y, w, h, cpp)) {
 				return TRUE;
 			}
 		} else
-		if (pNv->Architecture < NV_ARCH_C0) {
+		if (pNv->Architecture < NV_FERMI) {
 			if (NV50EXAUploadSIFC(src, src_pitch, pdpix,
 					      x, y, w, h, cpp)) {
 				return TRUE;
@@ -401,6 +397,13 @@ nouveau_exa_pixmap_is_onscreen(PixmapPtr ppix)
 	return FALSE;
 }
 
+static void
+nouveau_exa_flush(ScrnInfoPtr pScrn)
+{
+	NVPtr pNv = NVPTR(pScrn);
+	nouveau_pushbuf_kick(pNv->pushbuf, pNv->pushbuf->channel);
+}
+
 Bool
 nouveau_exa_init(ScreenPtr pScreen) 
 {
@@ -408,11 +411,12 @@ nouveau_exa_init(ScreenPtr pScreen)
 	NVPtr pNv = NVPTR(pScrn);
 	ExaDriverPtr exa;
 
-	exa = exaDriverAlloc();
-	if (!exa) {
-		pNv->NoAccel = TRUE;
+	if (!xf86LoadSubModule(pScrn, "exa"))
 		return FALSE;
-	}
+
+	exa = exaDriverAlloc();
+	if (!exa)
+		return FALSE;
 
 	exa->exa_major = EXA_VERSION_MAJOR;
 	exa->exa_minor = EXA_VERSION_MINOR;
@@ -437,7 +441,7 @@ nouveau_exa_init(ScreenPtr pScreen)
 	exa->SetSharedPixmapBacking = nouveau_exa_set_shared_pixmap_backing;
 #endif
 
-	if (pNv->Architecture >= NV_ARCH_50) {
+	if (pNv->Architecture >= NV_TESLA) {
 		exa->maxX = 8192;
 		exa->maxY = 8192;
 	} else
@@ -455,7 +459,7 @@ nouveau_exa_init(ScreenPtr pScreen)
 	exa->DownloadFromScreen = nouveau_exa_download_from_screen;
 	exa->UploadToScreen = nouveau_exa_upload_to_screen;
 
-	if (pNv->Architecture < NV_ARCH_50) {
+	if (pNv->Architecture < NV_TESLA) {
 		exa->PrepareCopy = NV04EXAPrepareCopy;
 		exa->Copy = NV04EXACopy;
 		exa->DoneCopy = NV04EXADoneCopy;
@@ -464,7 +468,7 @@ nouveau_exa_init(ScreenPtr pScreen)
 		exa->Solid = NV04EXASolid;
 		exa->DoneSolid = NV04EXADoneSolid;
 	} else
-	if (pNv->Architecture < NV_ARCH_C0) {
+	if (pNv->Architecture < NV_FERMI) {
 		exa->PrepareCopy = NV50EXAPrepareCopy;
 		exa->Copy = NV50EXACopy;
 		exa->DoneCopy = NV50EXADoneCopy;
@@ -502,19 +506,20 @@ nouveau_exa_init(ScreenPtr pScreen)
 		exa->Composite        = NV40EXAComposite;
 		exa->DoneComposite    = NV40EXADoneComposite;
 		break;
-	case NV_ARCH_50:
+	case NV_TESLA:
 		exa->CheckComposite   = NV50EXACheckComposite;
 		exa->PrepareComposite = NV50EXAPrepareComposite;
 		exa->Composite        = NV50EXAComposite;
 		exa->DoneComposite    = NV50EXADoneComposite;
 		break;
-	case NV_ARCH_C0:
-	case NV_ARCH_E0:
+	case NV_FERMI:
+	case NV_KEPLER:
 		exa->CheckComposite   = NVC0EXACheckComposite;
 		exa->PrepareComposite = NVC0EXAPrepareComposite;
 		exa->Composite        = NVC0EXAComposite;
 		exa->DoneComposite    = NVC0EXADoneComposite;
 		break;
+	case NV_MAXWELL:
 	default:
 		break;
 	}
@@ -523,5 +528,6 @@ nouveau_exa_init(ScreenPtr pScreen)
 		return FALSE;
 
 	pNv->EXADriverPtr = exa;
+	pNv->Flush = nouveau_exa_flush;
 	return TRUE;
 }

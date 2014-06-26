@@ -127,6 +127,21 @@ AC_SUBST([DRIVER_NAME])
 XORG_MANPAGE_SECTIONS
 XORG_RELEASE_VERSION
 
+AC_MSG_CHECKING([whether to include GLAMOR support])
+
+AC_COMPILE_IFELSE(AC_LANG_PROGRAM(
+[[
+  #include <glamor.h>
+]],[[]]),[found_glamor_header=yes],[found_glamor_header=no])
+
+if test "$found_glamor_header" = "yes" && pkg-config --exists "xorg-server >= 1.15.99.901"
+then
+	AC_DEFINE(HAVE_GLAMOR, 1, [Build support for glamor acceleration])
+	AC_MSG_RESULT([yes])
+else
+	AC_MSG_RESULT([no])
+fi
+
 AC_CONFIG_FILES([
 	Makefile
 	src/Makefile

@@ -235,7 +235,7 @@ Date:   Mon Jul 22 17:46:58 2013 +1000
 +	NVPtr pNv = NVPTR(pScrn);
 +
 +	exaMoveInPixmap(ppix);
-+	if (!pNv->NoAccel)
++	if (pNv->AccelMethod == NONE)
 +		nouveau_bo_ref(nouveau_pixmap(ppix)->bo, &pNv->scanout);
 +	ppix->drawable.pScreen->devPrivate = ppix;
 +}

@@ -22,7 +22,7 @@
 
 AC_PREREQ([2.60])
 AC_INIT([xf86-video-nouveau],
-        [1.0.10],
+        [1.0.11],
         [https://bugs.freedesktop.org/enter_bug.cgi?product=xorg],
         [xf86-video-nouveau])
 
@@ -126,6 +126,30 @@ AC_SUBST([DRIVER_NAME])
 
 XORG_MANPAGE_SECTIONS
 XORG_RELEASE_VERSION
+
+AC_CHECK_HEADERS([list.h],
+                 [have_list_h="yes"], [have_list_h="no"],
+                 [#include <X11/Xdefs.h>
+                  #include "xorg-server.h"])
+
+if test "x$have_list_h" = xyes; then
+    AC_CHECK_DECL(xorg_list_init,
+                  [AC_DEFINE(HAVE_XORG_LIST, 1, [Have xorg_list API])], [],
+                  [#include <X11/Xdefs.h>
+                   #include "xorg-server.h"
+                   #include "list.h"])
+fi
+
+AC_CHECK_HEADERS([glamor.h],[found_glamor_header=yes],[found_glamor_header=no],
+		 [#include "xorg-server.h"])
+AC_MSG_CHECKING([whether to include GLAMOR support])
+if test "x$found_glamor_header" = xyes && pkg-config --exists "xorg-server >= 1.15.99.901"
+then
+	AC_DEFINE(HAVE_GLAMOR, 1, [Build support for glamor acceleration])
+	AC_MSG_RESULT([yes])
+else
+	AC_MSG_RESULT([no])
+fi
 
 AC_CONFIG_FILES([
 	Makefile

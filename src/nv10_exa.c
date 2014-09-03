@@ -132,7 +132,7 @@ needs_src_alpha(int op)
 static inline Bool
 needs_src(int op)
 {
-	return nv10_pict_op[op].src != DF(ZERO);
+	return nv10_pict_op[op].src != SF(ZERO);
 }
 
 static inline Bool
@@ -461,7 +461,7 @@ setup_render_target(NVPtr pNv, PicturePtr pict, PixmapPtr pixmap)
 }
 
 static void
-setup_blend_function(NVPtr pNv, PicturePtr pdpict, int alu)
+setup_blend_function(NVPtr pNv, PicturePtr pdpict, PicturePtr pmpict, int alu)
 {
 	struct nouveau_pushbuf *push = pNv->pushbuf;
 	struct pict_op *op = &nv10_pict_op[alu];
@@ -476,7 +476,7 @@ setup_blend_function(NVPtr pNv, PicturePtr pdpict, int alu)
 		 */
 		src_factor = SF(ZERO);
 
-	if (effective_component_alpha(pNv->pmpict)) {
+	if (effective_component_alpha(pmpict)) {
 		if (dst_factor == DF(SRC_ALPHA))
 			dst_factor = DF(SRC_COLOR);
 		else if (dst_factor == DF(ONE_MINUS_SRC_ALPHA))
@@ -520,7 +520,7 @@ setup_picture(NVPtr pNv, PicturePtr pict, PixmapPtr pixmap, int unit,
 	if (pict && PICT_FORMAT_RGB(pict->format))
 		*color = RCSEL_COLOR | source;
 	else
-		*color = RCSEL_ALPHA | RCINP_ZERO;
+		*color = RCSEL_COLOR | RCINP_ZERO;
 
 	if (pict && PICT_FORMAT_A(pict->format))
 		*alpha = RCSEL_ALPHA | source;
@@ -557,7 +557,7 @@ NV10EXAPrepareComposite(int op,
 	/* setup render target and blending */
 	if (!setup_render_target(pNv, pict_dst, dst))
 		return FALSE;
-	setup_blend_function(pNv, pict_dst, op);
+	setup_blend_function(pNv, pict_dst, pict_mask, op);
 
 	/* select picture sources */
 	if (!setup_picture(pNv, pict_src, src, 0, &sc, &sa))
@@ -686,9 +686,9 @@ NVAccelInitNV10TCL(ScrnInfoPtr pScrn)
 	PUSH_DATA (push, 0);
 
 	BEGIN_NV04(push, NV10_3D(VIEWPORT_CLIP_HORIZ(0)), 1);
-	PUSH_DATA (push, 0x7ff << 16 | 0x800800);
+	PUSH_DATA (push, 0x7ff << 16 | 0x800);
 	BEGIN_NV04(push, NV10_3D(VIEWPORT_CLIP_VERT(0)), 1);
-	PUSH_DATA (push, 0x7ff << 16 | 0x800800);
+	PUSH_DATA (push, 0x7ff << 16 | 0x800);
 
 	for (i = 1; i < 8; i++) {
 		BEGIN_NV04(push, NV10_3D(VIEWPORT_CLIP_HORIZ(i)), 1);

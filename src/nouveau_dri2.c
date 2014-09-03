@@ -11,6 +11,8 @@
 #error "This driver requires a DRI2-enabled X server"
 #endif
 
+#include "xf86drmMode.h"
+
 struct nouveau_dri2_buffer {
 	DRI2BufferRec base;
 	PixmapPtr ppix;
@@ -228,6 +230,12 @@ struct nouveau_dri2_vblank_state {
 	unsigned int frame;
 };
 
+struct dri2_vblank {
+	struct nouveau_dri2_vblank_state *s;
+};
+
+static uint64_t dri2_sequence;
+
 static Bool
 update_front(DrawablePtr draw, DRI2BufferPtr front)
 {
@@ -295,36 +303,6 @@ can_sync_to_vblank(DrawablePtr draw)
 					  draw->width, draw->height);
 }
 
-static int
-nouveau_wait_vblank(DrawablePtr draw, int type, CARD64 msc,
-		    CARD64 *pmsc, CARD64 *pust, void *data)
-{
-	ScrnInfoPtr scrn = xf86ScreenToScrn(draw->pScreen);
-	NVPtr pNv = NVPTR(scrn);
-	int crtcs = nv_window_belongs_to_crtc(scrn, draw->x, draw->y,
-					      draw->width, draw->height);
-	drmVBlank vbl;
-	int ret;
-
-	vbl.request.type = type | (crtcs == 2 ? DRM_VBLANK_SECONDARY : 0);
-	vbl.request.sequence = msc;
-	vbl.request.signal = (unsigned long)data;
-
-	ret = drmWaitVBlank(pNv->dev->fd, &vbl);
-	if (ret) {
-		xf86DrvMsg(scrn->scrnIndex, X_WARNING,
-			   "Wait for VBlank failed: %s\n", strerror(errno));
-		return ret;
-	}
-
-	if (pmsc)
-		*pmsc = vbl.reply.sequence;
-	if (pust)
-		*pust = (CARD64)vbl.reply.tval_sec * 1000000 +
-			vbl.reply.tval_usec;
-	return 0;
-}
-
 #if DRI2INFOREC_VERSION >= 6
 static Bool
 nouveau_dri2_swap_limit_validate(DrawablePtr draw, int swap_limit)
@@ -351,6 +329,308 @@ static Bool violate_oml(DrawablePtr draw)
 	return (DRI2INFOREC_VERSION < 6) && (pNv->swap_limit > 1);
 }
 
+typedef struct {
+    int fd;
+    unsigned old_fb_id;
+    int flip_count;
+    void *event_data;
+    unsigned int fe_msc;
+    uint64_t fe_ust;
+} dri2_flipdata_rec, *dri2_flipdata_ptr;
+
+typedef struct {
+    dri2_flipdata_ptr flipdata;
+    Bool dispatch_me;
+} dri2_flipevtcarrier_rec, *dri2_flipevtcarrier_ptr;
+
+static void
+nouveau_dri2_flip_event_handler(unsigned int frame, unsigned int tv_sec,
+				unsigned int tv_usec, void *event_data)
+{
+	struct nouveau_dri2_vblank_state *flip = event_data;
+	DrawablePtr draw;
+	ScreenPtr screen;
+	ScrnInfoPtr scrn;
+	int status;
+
+	status = dixLookupDrawable(&draw, flip->draw, serverClient,
+				   M_ANY, DixWriteAccess);
+	if (status != Success) {
+		free(flip);
+		return;
+	}
+
+	screen = draw->pScreen;
+	scrn = xf86ScreenToScrn(screen);
+
+	/* We assume our flips arrive in order, so we don't check the frame */
+	switch (flip->action) {
+	case SWAP:
+		/* Check for too small vblank count of pageflip completion,
+		 * taking wraparound into account. This usually means some
+		 * defective kms pageflip completion, causing wrong (msc, ust)
+		 * return values and possible visual corruption.
+		 * Skip test for frame == 0, as this is a valid constant value
+		 * reported by all Linux kernels at least up to Linux 3.0.
+		 */
+		if ((frame != 0) &&
+		    (frame < flip->frame) && (flip->frame - frame < 5)) {
+			xf86DrvMsg(scrn->scrnIndex, X_WARNING,
+				   "%s: Pageflip has impossible msc %d < target_msc %d\n",
+				   __func__, frame, flip->frame);
+			/* All-Zero values signal failure of (msc, ust)
+			 * timestamping to client.
+			 */
+			frame = tv_sec = tv_usec = 0;
+		}
+
+		DRI2SwapComplete(flip->client, draw, frame, tv_sec, tv_usec,
+				 DRI2_FLIP_COMPLETE, flip->func,
+				 flip->data);
+		break;
+	default:
+		xf86DrvMsg(scrn->scrnIndex, X_WARNING,
+			   "%s: unknown vblank event received\n", __func__);
+		/* Unknown type */
+		break;
+	}
+
+	free(flip);
+}
+
+static void
+nouveau_dri2_flip_handler(void *priv, uint64_t name, uint64_t ust, uint32_t msc)
+{
+	dri2_flipevtcarrier_ptr flipcarrier = priv;
+	dri2_flipdata_ptr flipdata = flipcarrier->flipdata;
+
+	/* Is this the event whose info shall be delivered to higher level? */
+	if (flipcarrier->dispatch_me) {
+		/* Yes: Cache msc, ust for later delivery. */
+		flipdata->fe_msc = msc;
+		flipdata->fe_ust = ust;
+	}
+
+	/* Last crtc completed flip? */
+	flipdata->flip_count--;
+	if (flipdata->flip_count > 0)
+		return;
+
+	/* Release framebuffer */
+	drmModeRmFB(flipdata->fd, flipdata->old_fb_id);
+
+	if (flipdata->event_data == NULL) {
+		free(flipdata);
+		return;
+	}
+
+	/* Deliver cached msc, ust from reference crtc to flip event handler */
+	nouveau_dri2_flip_event_handler(flipdata->fe_msc,
+					flipdata->fe_ust / 1000000,
+					flipdata->fe_ust % 1000000,
+					flipdata->event_data);
+	free(flipdata);
+}
+
+static Bool
+dri2_page_flip(DrawablePtr draw, PixmapPtr back, void *priv,
+			   xf86CrtcPtr ref_crtc)
+{
+	ScrnInfoPtr scrn = xf86ScreenToScrn(draw->pScreen);
+	xf86CrtcConfigPtr config = XF86_CRTC_CONFIG_PTR(scrn);
+	NVPtr pNv = NVPTR(scrn);
+	uint32_t next_fb;
+	int emitted = 0;
+	int ret, i;
+	dri2_flipdata_ptr flipdata;
+	dri2_flipevtcarrier_ptr flipcarrier;
+
+	ret = drmModeAddFB(pNv->dev->fd, scrn->virtualX, scrn->virtualY,
+			   scrn->depth, scrn->bitsPerPixel,
+			   scrn->displayWidth * scrn->bitsPerPixel / 8,
+			   nouveau_pixmap(back)->bo->handle, &next_fb);
+	if (ret) {
+		xf86DrvMsg(scrn->scrnIndex, X_WARNING,
+			   "add fb failed: %s\n", strerror(errno));
+		return FALSE;
+	}
+
+	flipdata = calloc(1, sizeof(dri2_flipdata_rec));
+	if (!flipdata) {
+		xf86DrvMsg(scrn->scrnIndex, X_WARNING,
+		"flip queue: data alloc failed.\n");
+		goto error_undo;
+	}
+
+	flipdata->event_data = priv;
+	flipdata->fd = pNv->dev->fd;
+
+	for (i = 0; i < config->num_crtc; i++) {
+		int head = drmmode_crtc(config->crtc[i]);
+		void *token;
+
+		if (!config->crtc[i]->enabled)
+			continue;
+
+		flipdata->flip_count++;
+
+		flipcarrier = drmmode_event_queue(scrn, ++dri2_sequence,
+						  sizeof(*flipcarrier),
+						  nouveau_dri2_flip_handler,
+						  &token);
+		if (!flipcarrier) {
+			xf86DrvMsg(scrn->scrnIndex, X_WARNING,
+				   "flip queue: carrier alloc failed.\n");
+			if (emitted == 0)
+				free(flipdata);
+			goto error_undo;
+		}
+
+		/* Only the reference crtc will finally deliver its page flip
+		 * completion event. All other crtc's events will be discarded.
+		 */
+		flipcarrier->dispatch_me = (config->crtc[i] == ref_crtc);
+		flipcarrier->flipdata = flipdata;
+
+		ret = drmModePageFlip(pNv->dev->fd, head, next_fb,
+				      DRM_MODE_PAGE_FLIP_EVENT, token);
+		if (ret) {
+			xf86DrvMsg(scrn->scrnIndex, X_WARNING,
+				   "flip queue failed: %s\n", strerror(errno));
+			drmmode_event_abort(scrn, dri2_sequence--, false);
+			if (emitted == 0)
+				free(flipdata);
+			goto error_undo;
+		}
+
+		emitted++;
+	}
+
+	/* Will release old fb after all crtc's completed flip. */
+	drmmode_swap(scrn, next_fb, &flipdata->old_fb_id);
+	return TRUE;
+
+error_undo:
+	drmModeRmFB(pNv->dev->fd, next_fb);
+	return FALSE;
+}
+
+static void
+nouveau_dri2_finish_swap(DrawablePtr draw, unsigned int frame,
+			 unsigned int tv_sec, unsigned int tv_usec,
+			 struct nouveau_dri2_vblank_state *s);
+
+static void
+nouveau_dri2_vblank_handler(void *priv, uint64_t name, uint64_t ust, uint32_t frame)
+{
+	struct dri2_vblank *event = priv;
+	struct nouveau_dri2_vblank_state *s = event->s;
+	uint32_t tv_sec  = ust / 1000000;
+	uint32_t tv_usec = ust % 1000000;
+	DrawablePtr draw;
+	int ret;
+
+	ret = dixLookupDrawable(&draw, s->draw, serverClient,
+				M_ANY, DixWriteAccess);
+	if (ret) {
+		free(s);
+		return;
+	}
+
+	switch (s->action) {
+	case SWAP:
+		nouveau_dri2_finish_swap(draw, frame, tv_sec, tv_usec, s);
+#if DRI2INFOREC_VERSION >= 6
+		/* Restore real swap limit on drawable, now that it is safe. */
+		ScrnInfoPtr scrn = xf86ScreenToScrn(draw->pScreen);
+		DRI2SwapLimit(draw, NVPTR(scrn)->swap_limit);
+#endif
+		break;
+
+	case WAIT:
+		DRI2WaitMSCComplete(s->client, draw, frame, tv_sec, tv_usec);
+		free(s);
+		break;
+
+	case BLIT:
+		DRI2SwapComplete(s->client, draw, frame, tv_sec, tv_usec,
+				 DRI2_BLIT_COMPLETE, s->func, s->data);
+		free(s);
+		break;
+	}
+}
+
+static int
+nouveau_wait_vblank(DrawablePtr draw, int type, CARD64 msc,
+		    CARD64 *pmsc, CARD64 *pust, void *data)
+{
+	ScrnInfoPtr scrn = xf86ScreenToScrn(draw->pScreen);
+	NVPtr pNv = NVPTR(scrn);
+	xf86CrtcPtr crtc;
+	drmVBlank vbl;
+	struct dri2_vblank *event = NULL;
+	void *token = NULL;
+	int ret;
+	int head;
+
+	/* Select crtc which shows the largest part of the drawable */
+	crtc = nouveau_pick_best_crtc(scrn, FALSE,
+                                  draw->x, draw->y, draw->width, draw->height);
+
+	if (!crtc) {
+		xf86DrvMsg(scrn->scrnIndex, X_WARNING,
+				   "Wait for VBlank failed: No valid crtc for drawable.\n");
+		return -EINVAL;
+	}
+
+	if (type & DRM_VBLANK_EVENT) {
+		event = drmmode_event_queue(scrn, ++dri2_sequence,
+					    sizeof(*event),
+					    nouveau_dri2_vblank_handler,
+					    &token);
+		if (!event)
+			return -ENOMEM;
+
+		event->s = data;
+	}
+
+	/* Map xf86CrtcPtr to drmWaitVBlank compatible display head index. */
+	head = drmmode_head(crtc);
+
+	if (head == 1)
+		type |= DRM_VBLANK_SECONDARY;
+	else if (head > 1)
+#ifdef DRM_VBLANK_HIGH_CRTC_SHIFT
+		type |= (head << DRM_VBLANK_HIGH_CRTC_SHIFT) &
+				DRM_VBLANK_HIGH_CRTC_MASK;
+#else
+	xf86DrvMsg(scrn->scrnIndex, X_WARNING,
+			   "Wait for VBlank failed: Called for CRTC %d > 1, but "
+			   "DRM_VBLANK_HIGH_CRTC_SHIFT not defined at build time.\n",
+			   head);
+#endif
+
+	vbl.request.type = type;
+	vbl.request.sequence = msc;
+	vbl.request.signal = (unsigned long)token;
+
+	ret = drmWaitVBlank(pNv->dev->fd, &vbl);
+	if (ret) {
+		xf86DrvMsg(scrn->scrnIndex, X_WARNING,
+			   "Wait for VBlank failed: %s\n", strerror(errno));
+		if (event)
+			drmmode_event_abort(scrn, dri2_sequence--, false);
+		return ret;
+	}
+
+	if (pmsc)
+		*pmsc = vbl.reply.sequence;
+	if (pust)
+		*pust = (CARD64)vbl.reply.tval_sec * 1000000 +
+			vbl.reply.tval_usec;
+	return 0;
+}
+
 static void
 nouveau_dri2_finish_swap(DrawablePtr draw, unsigned int frame,
 			 unsigned int tv_sec, unsigned int tv_usec,
@@ -365,22 +645,15 @@ nouveau_dri2_finish_swap(DrawablePtr draw, unsigned int frame,
 	struct nouveau_pushbuf *push = pNv->pushbuf;
 	RegionRec reg;
 	int type, ret;
-	Bool front_updated;
+	Bool front_updated, will_exchange;
+	xf86CrtcPtr ref_crtc;
 
 	REGION_INIT(0, &reg, (&(BoxRec){ 0, 0, draw->width, draw->height }), 0);
 	REGION_TRANSLATE(0, &reg, draw->x, draw->y);
 
 	/* Main crtc for this drawable shall finally deliver pageflip event. */
-	unsigned int ref_crtc_hw_id = nv_window_belongs_to_crtc(scrn, draw->x,
-								draw->y,
-								draw->width,
-								draw->height);
-
-	/* Whenever first crtc is involved, choose it as reference, as
-	 * its vblank event triggered this swap.
-	 */
-	if (ref_crtc_hw_id & 1)
-		ref_crtc_hw_id = 1;
+	ref_crtc = nouveau_pick_best_crtc(scrn, FALSE, draw->x, draw->y,
+                                      draw->width, draw->height);
 
 	/* Update frontbuffer pixmap and name: Could have changed due to
 	 * window (un)redirection as part of compositing.
@@ -394,17 +667,28 @@ nouveau_dri2_finish_swap(DrawablePtr draw, unsigned int frame,
 	/* Throttle on the previous frame before swapping */
 	nouveau_bo_wait(dst_bo, NOUVEAU_BO_RD, push->client);
 
-	if (can_sync_to_vblank(draw)) {
+	/* Swap by buffer exchange possible? */
+	will_exchange = front_updated && can_exchange(draw, dst_pix, src_pix);
+
+	/* Only emit a wait for vblank pushbuf here if this is a copy-swap, or
+	 * if it is a kms pageflip-swap on an old kernel. Pure exchange swaps
+	 * don't need sync to vblank. kms pageflip-swaps on Linux 3.13+ are
+	 * synced to vblank in the kms driver, so we must not sync here, or
+	 * framerate will be cut in half!
+	 */
+	if (can_sync_to_vblank(draw) &&
+		(!will_exchange ||
+		(!pNv->has_async_pageflip && nouveau_exa_pixmap_is_onscreen(dst_pix)))) {
 		/* Reference the back buffer to sync it to vblank */
 		nouveau_pushbuf_refn(push, &(struct nouveau_pushbuf_refn) {
 					   src_bo,
 					   NOUVEAU_BO_VRAM | NOUVEAU_BO_RD
 				     }, 1);
 
-		if (pNv->Architecture >= NV_ARCH_C0)
+		if (pNv->Architecture >= NV_FERMI)
 			NVC0SyncToVBlank(dst_pix, REGION_EXTENTS(0, &reg));
 		else
-		if (pNv->Architecture >= NV_ARCH_50)
+		if (pNv->Architecture >= NV_TESLA)
 			NV50SyncToVBlank(dst_pix, REGION_EXTENTS(0, &reg));
 		else
 			NV11SyncToVBlank(dst_pix, REGION_EXTENTS(0, &reg));
@@ -412,15 +696,14 @@ nouveau_dri2_finish_swap(DrawablePtr draw, unsigned int frame,
 		nouveau_pushbuf_kick(push, push->channel);
 	}
 
-	if (front_updated && can_exchange(draw, dst_pix, src_pix)) {
+	if (will_exchange) {
 		type = DRI2_EXCHANGE_COMPLETE;
 		DamageRegionAppend(draw, &reg);
 
 		if (nouveau_exa_pixmap_is_onscreen(dst_pix)) {
 			type = DRI2_FLIP_COMPLETE;
-			ret = drmmode_page_flip(draw, src_pix,
-						violate_oml(draw) ? NULL : s,
-						ref_crtc_hw_id);
+			ret = dri2_page_flip(draw, src_pix, violate_oml(draw) ?
+					     NULL : s, ref_crtc);
 			if (!ret)
 				goto out;
 		}
@@ -671,101 +954,6 @@ nouveau_dri2_get_msc(DrawablePtr draw, CARD64 *ust, CARD64 *msc)
 	return TRUE;
 }
 
-void
-nouveau_dri2_vblank_handler(int fd, unsigned int frame,
-			    unsigned int tv_sec, unsigned int tv_usec,
-			    void *event_data)
-{
-	struct nouveau_dri2_vblank_state *s = event_data;
-	DrawablePtr draw;
-	int ret;
-
-	ret = dixLookupDrawable(&draw, s->draw, serverClient,
-				M_ANY, DixWriteAccess);
-	if (ret) {
-		free(s);
-		return;
-	}
-
-	switch (s->action) {
-	case SWAP:
-		nouveau_dri2_finish_swap(draw, frame, tv_sec, tv_usec, s);
-#if DRI2INFOREC_VERSION >= 6
-		/* Restore real swap limit on drawable, now that it is safe. */
-		ScrnInfoPtr scrn = xf86ScreenToScrn(draw->pScreen);
-		DRI2SwapLimit(draw, NVPTR(scrn)->swap_limit);
-#endif
-
-		break;
-
-	case WAIT:
-		DRI2WaitMSCComplete(s->client, draw, frame, tv_sec, tv_usec);
-		free(s);
-		break;
-
-	case BLIT:
-		DRI2SwapComplete(s->client, draw, frame, tv_sec, tv_usec,
-				 DRI2_BLIT_COMPLETE, s->func, s->data);
-		free(s);
-		break;
-	}
-}
-
-void
-nouveau_dri2_flip_event_handler(unsigned int frame, unsigned int tv_sec,
-				unsigned int tv_usec, void *event_data)
-{
-	struct nouveau_dri2_vblank_state *flip = event_data;
-	DrawablePtr draw;
-	ScreenPtr screen;
-	ScrnInfoPtr scrn;
-	int status;
-
-	status = dixLookupDrawable(&draw, flip->draw, serverClient,
-				   M_ANY, DixWriteAccess);
-	if (status != Success) {
-		free(flip);
-		return;
-	}
-
-	screen = draw->pScreen;
-	scrn = xf86ScreenToScrn(screen);
-
-	/* We assume our flips arrive in order, so we don't check the frame */
-	switch (flip->action) {
-	case SWAP:
-		/* Check for too small vblank count of pageflip completion,
-		 * taking wraparound into account. This usually means some
-		 * defective kms pageflip completion, causing wrong (msc, ust)
-		 * return values and possible visual corruption.
-		 * Skip test for frame == 0, as this is a valid constant value
-		 * reported by all Linux kernels at least up to Linux 3.0.
-		 */
-		if ((frame != 0) &&
-		    (frame < flip->frame) && (flip->frame - frame < 5)) {
-			xf86DrvMsg(scrn->scrnIndex, X_WARNING,
-				   "%s: Pageflip has impossible msc %d < target_msc %d\n",
-				   __func__, frame, flip->frame);
-			/* All-Zero values signal failure of (msc, ust)
-			 * timestamping to client.
-			 */
-			frame = tv_sec = tv_usec = 0;
-		}
-
-		DRI2SwapComplete(flip->client, draw, frame, tv_sec, tv_usec,
-				 DRI2_FLIP_COMPLETE, flip->func,
-				 flip->data);
-		break;
-	default:
-		xf86DrvMsg(scrn->scrnIndex, X_WARNING,
-			   "%s: unknown vblank event received\n", __func__);
-		/* Unknown type */
-		break;
-	}
-
-	free(flip);
-}
-
 Bool
 nouveau_dri2_init(ScreenPtr pScreen)
 {
@@ -776,6 +964,9 @@ nouveau_dri2_init(ScreenPtr pScreen)
 		{ "nouveau", "nouveau" },
 		{ "nouveau_vieux", "nouveau_vieux" }
 	};
+
+	if (pNv->AccelMethod != EXA)
+		return FALSE;
 
 	if (pNv->Architecture >= NV_ARCH_30)
 		dri2.driverNames = drivernames[0];
@@ -816,5 +1007,8 @@ nouveau_dri2_init(ScreenPtr pScreen)
 void
 nouveau_dri2_fini(ScreenPtr pScreen)
 {
-	DRI2CloseScreen(pScreen);
+	ScrnInfoPtr pScrn = xf86ScreenToScrn(pScreen);
+	NVPtr pNv = NVPTR(pScrn);
+	if (pNv->AccelMethod == EXA)
+		DRI2CloseScreen(pScreen);
 }

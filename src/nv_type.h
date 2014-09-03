@@ -19,16 +19,26 @@
 #define NV_ARCH_20  0x20
 #define NV_ARCH_30  0x30
 #define NV_ARCH_40  0x40
-#define NV_ARCH_50  0x50
-#define NV_ARCH_C0  0xc0
-#define NV_ARCH_E0  0xe0
+#define NV_TESLA    0x50
+#define NV_FERMI    0xc0
+#define NV_KEPLER   0xe0
+#define NV_MAXWELL  0x110
+
+struct xf86_platform_device;
 
 /* NV50 */
 typedef struct _NVRec *NVPtr;
 
 typedef struct {
 	int fd;
+	unsigned long reinitGeneration;
+	struct xf86_platform_device *platform_dev;
+	unsigned int assigned_crtcs;
+	unsigned long fd_wakeup_registered;
+	int fd_wakeup_ref;
 } NVEntRec, *NVEntPtr;
+
+NVEntPtr NVEntPriv(ScrnInfoPtr pScrn);
 
 typedef struct _NVRec {
     uint32_t              Architecture;
@@ -39,7 +49,14 @@ typedef struct _NVRec {
 
     struct nouveau_bo * scanout;
 
-    Bool                NoAccel;
+    enum {
+	    UNKNOWN = 0,
+	    NONE,
+	    EXA,
+	    GLAMOR,
+    } AccelMethod;
+    void (*Flush)(ScrnInfoPtr);
+
     Bool                HWCursor;
     Bool                ShadowFB;
     unsigned char *     ShadowPtr;
@@ -50,6 +67,7 @@ typedef struct _NVRec {
     Bool		wfb_enabled;
     Bool		tiled_scanout;
     Bool		glx_vblank;
+    Bool		has_async_pageflip;
     Bool		has_pageflip;
     int 		swap_limit;
     int 		max_swap_limit;
@@ -107,6 +125,16 @@ typedef struct _NVRec {
 	struct nouveau_object *ce_channel;
 	struct nouveau_pushbuf *ce_pushbuf;
 	struct nouveau_object *NvCopy;
+	Bool (*ce_rect)(struct nouveau_pushbuf *, struct nouveau_object *,
+			int, int, int,
+			struct nouveau_bo *, uint32_t, int, int, int, int, int,
+			struct nouveau_bo *, uint32_t, int, int, int, int, int);
+
+	/* SYNC extension private */
+	void *sync;
+
+	/* Present extension private */
+	void *present;
 
 	/* Acceleration context */
 	PixmapPtr pspix, pmpix, pdpix;

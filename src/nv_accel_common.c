@@ -48,7 +48,7 @@ nouveau_allocate_surface(ScrnInfoPtr scrn, int width, int height, int bpp,
 	if (bpp >= 8)
 		flags |= shared ? NOUVEAU_BO_GART : NOUVEAU_BO_VRAM;
 
-	if (pNv->Architecture >= NV_ARCH_50) {
+	if (pNv->Architecture >= NV_TESLA) {
 		if (scanout) {
 			if (pNv->tiled_scanout) {
 				tiled = TRUE;
@@ -68,7 +68,7 @@ nouveau_allocate_surface(ScrnInfoPtr scrn, int width, int height, int bpp,
 	}
 
 	if (tiled) {
-		if (pNv->Architecture >= NV_ARCH_C0) {
+		if (pNv->Architecture >= NV_FERMI) {
 			if      (height > 64) cfg.nvc0.tile_mode = 0x040;
 			else if (height > 32) cfg.nvc0.tile_mode = 0x030;
 			else if (height > 16) cfg.nvc0.tile_mode = 0x020;
@@ -81,8 +81,8 @@ nouveau_allocate_surface(ScrnInfoPtr scrn, int width, int height, int bpp,
 				cfg.nvc0.memtype = 0xfe;
 
 			height = NOUVEAU_ALIGN(height,
-				 NVC0_TILE_HEIGHT(cfg.nv50.tile_mode));
-		} else if (pNv->Architecture >= NV_ARCH_50) {
+				 NVC0_TILE_HEIGHT(cfg.nvc0.tile_mode));
+		} else if (pNv->Architecture >= NV_TESLA) {
 			if      (height > 32) cfg.nv50.tile_mode = 0x040;
 			else if (height > 16) cfg.nv50.tile_mode = 0x030;
 			else if (height >  8) cfg.nv50.tile_mode = 0x020;
@@ -108,7 +108,7 @@ nouveau_allocate_surface(ScrnInfoPtr scrn, int width, int height, int bpp,
 		}
 	}
 
-	if (pNv->Architecture < NV_ARCH_50) {
+	if (pNv->Architecture < NV_TESLA) {
 		if (bpp == 16)
 			cfg.nv04.surf_flags |= NV04_BO_16BPP;
 		if (bpp == 32)
@@ -135,24 +135,27 @@ NV11SyncToVBlank(PixmapPtr ppix, BoxPtr box)
 	ScrnInfoPtr pScrn = xf86ScreenToScrn(ppix->drawable.pScreen);
 	NVPtr pNv = NVPTR(pScrn);
 	struct nouveau_pushbuf *push = pNv->pushbuf;
-	int crtcs;
+	int head;
+	xf86CrtcPtr crtc;
 
 	if (!nouveau_exa_pixmap_is_onscreen(ppix))
 		return;
 
-	crtcs = nv_window_belongs_to_crtc(pScrn, box->x1, box->y1,
-					  box->x2 - box->x1,
-					  box->y2 - box->y1);
-	if (!crtcs)
+	crtc = nouveau_pick_best_crtc(pScrn, FALSE, box->x1, box->y1,
+                                  box->x2 - box->x1,
+                                  box->y2 - box->y1);
+	if (!crtc)
 		return;
 
 	if (!PUSH_SPACE(push, 8))
 		return;
 
+	head = drmmode_head(crtc);
+
 	BEGIN_NV04(push, SUBC_BLIT(0x0000012C), 1);
 	PUSH_DATA (push, 0);
 	BEGIN_NV04(push, SUBC_BLIT(0x00000134), 1);
-	PUSH_DATA (push, ffs(crtcs) - 1);
+	PUSH_DATA (push, head);
 	BEGIN_NV04(push, SUBC_BLIT(0x00000100), 1);
 	PUSH_DATA (push, 0);
 	BEGIN_NV04(push, SUBC_BLIT(0x00000130), 1);
@@ -592,100 +595,10 @@ NVAccelInitImageFromCpu(ScrnInfoPtr pScrn)
 	}                                                                     \
 } while(0)
 
-Bool
-NVAccelCommonInit(ScrnInfoPtr pScrn)
+void
+NVAccelCommonFini(ScrnInfoPtr pScrn)
 {
 	NVPtr pNv = NVPTR(pScrn);
-	Bool ret;
-
-	if (pNv->NoAccel)
-		return TRUE;
-
-	/* Scratch buffer */
-	ret = nouveau_bo_new(pNv->dev, NOUVEAU_BO_VRAM | NOUVEAU_BO_MAP,
-			     128 * 1024, 128 * 1024, NULL, &pNv->scratch);
-	if (!ret)
-		ret = nouveau_bo_map(pNv->scratch, 0, pNv->client);
-	if (ret) {
-		xf86DrvMsg(pScrn->scrnIndex, X_ERROR,
-			   "Failed to allocate scratch buffer: %d\n", ret);
-		return FALSE;
-	}
-
-	/* General engine objects */
-	if (pNv->Architecture < NV_ARCH_C0) {
-		INIT_CONTEXT_OBJECT(DmaNotifier0);
-		INIT_CONTEXT_OBJECT(Null);
-	}
-
-	/* 2D engine */
-	if (pNv->Architecture < NV_ARCH_50) {
-		INIT_CONTEXT_OBJECT(ContextSurfaces);
-		INIT_CONTEXT_OBJECT(ContextBeta1);
-		INIT_CONTEXT_OBJECT(ContextBeta4);
-		INIT_CONTEXT_OBJECT(ImagePattern);
-		INIT_CONTEXT_OBJECT(RasterOp);
-		INIT_CONTEXT_OBJECT(Rectangle);
-		INIT_CONTEXT_OBJECT(ImageBlit);
-		INIT_CONTEXT_OBJECT(ScaledImage);
-		INIT_CONTEXT_OBJECT(ClipRectangle);
-		INIT_CONTEXT_OBJECT(ImageFromCpu);
-	} else
-	if (pNv->Architecture < NV_ARCH_C0) {
-		INIT_CONTEXT_OBJECT(2D_NV50);
-		if (pNv->ce_enabled)
-			INIT_CONTEXT_OBJECT(Copy_NV50);
-	} else {
-		INIT_CONTEXT_OBJECT(2D_NVC0);
-		if (pNv->ce_enabled)
-			INIT_CONTEXT_OBJECT(Copy_NVC0);
-	}
-
-	if (pNv->Architecture < NV_ARCH_50)
-		INIT_CONTEXT_OBJECT(MemFormat);
-	else
-	if (pNv->Architecture < NV_ARCH_C0)
-		INIT_CONTEXT_OBJECT(M2MF_NV50);
-	else
-	if (pNv->Architecture < NV_ARCH_E0)
-		INIT_CONTEXT_OBJECT(M2MF_NVC0);
-	else {
-		INIT_CONTEXT_OBJECT(P2MF_NVE0);
-		INIT_CONTEXT_OBJECT(COPY_NVE0);
-	}
-
-	/* 3D init */
-	switch (pNv->Architecture) {
-	case NV_ARCH_C0:
-	case NV_ARCH_E0:
-		INIT_CONTEXT_OBJECT(3D_NVC0);
-		break;
-	case NV_ARCH_50:
-		INIT_CONTEXT_OBJECT(NV50TCL);
-		break;
-	case NV_ARCH_40:
-		INIT_CONTEXT_OBJECT(NV40TCL);
-		break;
-	case NV_ARCH_30:
-		INIT_CONTEXT_OBJECT(NV30TCL);
-		break;
-	case NV_ARCH_20:
-	case NV_ARCH_10:
-		INIT_CONTEXT_OBJECT(NV10TCL);
-		break;
-	default:
-		break;
-	}
-
-	return TRUE;
-}
-
-void NVAccelFree(ScrnInfoPtr pScrn)
-{
-	NVPtr pNv = NVPTR(pScrn);
-
-	if (pNv->NoAccel)
-		return;
 
 	nouveau_object_del(&pNv->notify0);
 	nouveau_object_del(&pNv->vblank_sem);
@@ -707,4 +620,134 @@ void NVAccelFree(ScrnInfoPtr pScrn)
 	nouveau_object_del(&pNv->NvCOPY);
 
 	nouveau_bo_ref(NULL, &pNv->scratch);
+
+	nouveau_bufctx_del(&pNv->bufctx);
+	nouveau_pushbuf_del(&pNv->pushbuf);
+	nouveau_object_del(&pNv->channel);
+}
+
+Bool
+NVAccelCommonInit(ScrnInfoPtr pScrn)
+{
+	NVPtr pNv = NVPTR(pScrn);
+	struct nv04_fifo nv04_data = { .vram = NvDmaFB,
+				       .gart = NvDmaTT };
+	struct nvc0_fifo nvc0_data = { };
+	struct nouveau_object *device = &pNv->dev->object;
+	int size, ret;
+	void *data;
+
+	if (pNv->dev->drm_version < 0x01000000 && pNv->dev->chipset >= 0xc0) {
+		xf86DrvMsg(pScrn->scrnIndex, X_ERROR,
+			   "Fermi acceleration not supported on old kernel\n");
+		return FALSE;
+	}
+
+	if (pNv->Architecture < NV_FERMI) {
+		data = &nv04_data;
+		size = sizeof(nv04_data);
+	} else {
+		data = &nvc0_data;
+		size = sizeof(nvc0_data);
+	}
+
+	ret = nouveau_object_new(device, 0, NOUVEAU_FIFO_CHANNEL_CLASS,
+				 data, size, &pNv->channel);
+	if (ret) {
+		xf86DrvMsg(pScrn->scrnIndex, X_ERROR,
+			   "Error creating GPU channel: %d\n", ret);
+		return FALSE;
+	}
+
+	ret = nouveau_pushbuf_new(pNv->client, pNv->channel, 4, 32 * 1024,
+				  true, &pNv->pushbuf);
+	if (ret) {
+		xf86DrvMsg(pScrn->scrnIndex, X_ERROR,
+			   "Error allocating DMA push buffer: %d\n",ret);
+		NVAccelCommonFini(pScrn);
+		return FALSE;
+	}
+
+	ret = nouveau_bufctx_new(pNv->client, 1, &pNv->bufctx);
+	if (ret) {
+		NVAccelCommonFini(pScrn);
+		return FALSE;
+	}
+
+	pNv->pushbuf->user_priv = pNv->bufctx;
+
+	/* Scratch buffer */
+	ret = nouveau_bo_new(pNv->dev, NOUVEAU_BO_VRAM | NOUVEAU_BO_MAP,
+			     128 * 1024, 128 * 1024, NULL, &pNv->scratch);
+	if (!ret)
+		ret = nouveau_bo_map(pNv->scratch, 0, pNv->client);
+	if (ret) {
+		xf86DrvMsg(pScrn->scrnIndex, X_ERROR,
+			   "Failed to allocate scratch buffer: %d\n", ret);
+		return FALSE;
+	}
+
+	/* General engine objects */
+	if (pNv->Architecture < NV_FERMI) {
+		INIT_CONTEXT_OBJECT(DmaNotifier0);
+		INIT_CONTEXT_OBJECT(Null);
+	}
+
+	/* 2D engine */
+	if (pNv->Architecture < NV_TESLA) {
+		INIT_CONTEXT_OBJECT(ContextSurfaces);
+		INIT_CONTEXT_OBJECT(ContextBeta1);
+		INIT_CONTEXT_OBJECT(ContextBeta4);
+		INIT_CONTEXT_OBJECT(ImagePattern);
+		INIT_CONTEXT_OBJECT(RasterOp);
+		INIT_CONTEXT_OBJECT(Rectangle);
+		INIT_CONTEXT_OBJECT(ImageBlit);
+		INIT_CONTEXT_OBJECT(ScaledImage);
+		INIT_CONTEXT_OBJECT(ClipRectangle);
+		INIT_CONTEXT_OBJECT(ImageFromCpu);
+	} else
+	if (pNv->Architecture < NV_FERMI) {
+		INIT_CONTEXT_OBJECT(2D_NV50);
+	} else {
+		INIT_CONTEXT_OBJECT(2D_NVC0);
+	}
+
+	if (pNv->Architecture < NV_TESLA)
+		INIT_CONTEXT_OBJECT(MemFormat);
+	else
+	if (pNv->Architecture < NV_FERMI)
+		INIT_CONTEXT_OBJECT(M2MF_NV50);
+	else
+	if (pNv->Architecture < NV_KEPLER)
+		INIT_CONTEXT_OBJECT(M2MF_NVC0);
+	else {
+		INIT_CONTEXT_OBJECT(P2MF_NVE0);
+		INIT_CONTEXT_OBJECT(COPY_NVE0);
+	}
+
+	/* 3D init */
+	switch (pNv->Architecture) {
+	case NV_FERMI:
+	case NV_KEPLER:
+		INIT_CONTEXT_OBJECT(3D_NVC0);
+		break;
+	case NV_TESLA:
+		INIT_CONTEXT_OBJECT(NV50TCL);
+		break;
+	case NV_ARCH_40:
+		INIT_CONTEXT_OBJECT(NV40TCL);
+		break;
+	case NV_ARCH_30:
+		INIT_CONTEXT_OBJECT(NV30TCL);
+		break;
+	case NV_ARCH_20:
+	case NV_ARCH_10:
+		INIT_CONTEXT_OBJECT(NV10TCL);
+		break;
+	default:
+		break;
+	}
+
+	xf86DrvMsg(pScrn->scrnIndex, X_INFO, "Channel setup complete.\n");
+	return TRUE;
 }

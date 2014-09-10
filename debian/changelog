@@ -1,3 +1,11 @@
+xserver-xorg-video-nouveau (1:1.0.11-1ubuntu1) UNRELEASED; urgency=medium
+
+  * Merge from debian-unstable: Remaining Ubuntu diff:
+    - Add xmir support.
+  * Drop enabling vblank patch, enabled by default now.
+
+ -- Maarten Lankhorst <maarten.lankhorst@ubuntu.com>  Wed, 10 Sep 2014 14:46:13 +0200
+
 xserver-xorg-video-nouveau (1:1.0.11-1) unstable; urgency=low
 
   * New upstream release (Closes: #760265).

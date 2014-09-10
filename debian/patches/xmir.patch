@@ -26,7 +26,7 @@ Date:   Mon Jul 22 17:46:58 2013 +1000
  		nv_window_belongs_to_crtc(scrn, draw->x, draw->y,
  					  draw->width, draw->height);
  }
-@@ -951,6 +951,19 @@
+@@ -954,6 +954,19 @@
  	return TRUE;
  }
  
@@ -46,7 +46,7 @@ Date:   Mon Jul 22 17:46:58 2013 +1000
  Bool
  nouveau_dri2_init(ScreenPtr pScreen)
  {
-@@ -992,6 +1005,11 @@
+@@ -995,6 +1008,11 @@
  	dri2.GetParam = NULL;
  #endif
  
@@ -60,7 +60,7 @@ Date:   Mon Jul 22 17:46:58 2013 +1000
  	dri2.CreateBuffer2 = nouveau_dri2_create_buffer2;
 --- a/src/nv_driver.c
 +++ b/src/nv_driver.c
-@@ -231,6 +231,8 @@
+@@ -236,6 +236,8 @@
  	case GET_REQUIRED_HW_INTERFACES:
  	    flag = (CARD32 *)data;
  	    (*flag) = 0;
@@ -69,7 +69,7 @@ Date:   Mon Jul 22 17:46:58 2013 +1000
  	    return TRUE;
  #if XORG_VERSION_CURRENT > XORG_VERSION_NUMERIC(1,15,99,0,0)
  	case SUPPORTS_SERVER_FDS:
-@@ -309,6 +311,8 @@
+@@ -323,6 +325,8 @@
  #endif
  	if (fd != -1)
  		ret = nouveau_device_wrap(fd, 0, &dev);
@@ -78,7 +78,7 @@ Date:   Mon Jul 22 17:46:58 2013 +1000
  	else
  		ret = nouveau_device_open(busid, &dev);
  	if (ret)
-@@ -372,6 +376,23 @@
+@@ -386,6 +390,23 @@
  }
  
  static Bool
@@ -102,7 +102,7 @@ Date:   Mon Jul 22 17:46:58 2013 +1000
  NVPciProbe(DriverPtr drv, int entity_num, struct pci_device *pci_dev,
  	   intptr_t match_data)
  {
-@@ -382,6 +403,10 @@
+@@ -396,6 +417,10 @@
  	};
  	ScrnInfoPtr pScrn = NULL;
  
@@ -113,7 +113,7 @@ Date:   Mon Jul 22 17:46:58 2013 +1000
  	if (!NVHasKMS(pci_dev, NULL))
  		return FALSE;
  
-@@ -406,6 +431,9 @@
+@@ -420,6 +445,9 @@
  	if (!dev->pdev)
  		return FALSE;
  
@@ -123,7 +123,7 @@ Date:   Mon Jul 22 17:46:58 2013 +1000
  	if (!NVHasKMS(dev->pdev, dev))
  		return FALSE;
  
-@@ -445,7 +473,8 @@
+@@ -459,7 +487,8 @@
  NVAdjustFrame(ADJUST_FRAME_ARGS_DECL)
  {
  	SCRN_INFO_PTR(arg);
@@ -133,7 +133,7 @@ Date:   Mon Jul 22 17:46:58 2013 +1000
  }
  
  /*
-@@ -462,7 +491,7 @@
+@@ -476,7 +505,7 @@
  #ifdef XF86_PDEV_SERVER_FD
  	NVEntPtr pNVEnt = NVEntPriv(pScrn);
  #endif
@@ -142,7 +142,7 @@ Date:   Mon Jul 22 17:46:58 2013 +1000
  
  	xf86DrvMsg(pScrn->scrnIndex, X_INFO, "NVEnterVT is called.\n");
  
-@@ -471,7 +500,8 @@
+@@ -485,7 +514,8 @@
  	      (pNVEnt->platform_dev->flags & XF86_PDEV_SERVER_FD)))
  #endif
  	{
@@ -152,7 +152,7 @@ Date:   Mon Jul 22 17:46:58 2013 +1000
  		if (ret)
  			ErrorF("Unable to get master: %s\n", strerror(errno));
  	}
-@@ -509,6 +539,9 @@
+@@ -523,6 +553,9 @@
  		return;
  #endif
  
@@ -162,7 +162,7 @@ Date:   Mon Jul 22 17:46:58 2013 +1000
  	ret = drmDropMaster(pNv->dev->fd);
  	if (ret && errno != EIO && errno != ENODEV)
  		ErrorF("Error dropping master: %i(%m)\n", -errno);
-@@ -557,6 +590,50 @@
+@@ -571,6 +604,50 @@
  }
  #endif
  
@@ -213,7 +213,7 @@ Date:   Mon Jul 22 17:46:58 2013 +1000
  static void 
  NVBlockHandler (BLOCKHANDLER_ARGS_DECL)
  {
-@@ -572,12 +649,29 @@
+@@ -586,12 +663,29 @@
  	nouveau_dirty_update(pScreen);
  #endif
  
@@ -243,7 +243,7 @@ Date:   Mon Jul 22 17:46:58 2013 +1000
  static Bool
  NVCreateScreenResources(ScreenPtr pScreen)
  {
-@@ -589,7 +683,10 @@
+@@ -603,7 +697,10 @@
  		return FALSE;
  	pScreen->CreateScreenResources = NVCreateScreenResources;
  
@@ -255,7 +255,7 @@ Date:   Mon Jul 22 17:46:58 2013 +1000
  	if (!NVEnterVT(VT_FUNC_ARGS(0)))
  		return FALSE;
  
-@@ -618,7 +715,7 @@
+@@ -632,7 +729,7 @@
  	ScrnInfoPtr pScrn = xf86ScreenToScrn(pScreen);
  	NVPtr pNv = NVPTR(pScrn);
  
@@ -264,7 +264,7 @@ Date:   Mon Jul 22 17:46:58 2013 +1000
  		drmmode_screen_fini(pScreen);
  
  	nouveau_present_fini(pScreen);
-@@ -766,6 +863,9 @@
+@@ -780,6 +877,9 @@
  	if (!pNv->dev)
  		return FALSE;
  
@@ -274,7 +274,7 @@ Date:   Mon Jul 22 17:46:58 2013 +1000
  	sv.drm_di_major = 1;
  	sv.drm_di_minor = 1;
  	sv.drm_dd_major = -1;
-@@ -861,6 +961,14 @@
+@@ -875,6 +975,14 @@
  		)
  		return FALSE;
  
@@ -289,7 +289,7 @@ Date:   Mon Jul 22 17:46:58 2013 +1000
  	if (xf86IsEntityShared(pScrn->entityList[0])) {
  		if(!xf86IsPrimInitDone(pScrn->entityList[0])) {
  			pNv->Primary = TRUE;
-@@ -1012,6 +1120,8 @@
+@@ -1026,6 +1134,8 @@
  		from = X_CONFIG;
  		pNv->HWCursor = FALSE;
  	}
@@ -298,16 +298,16 @@ Date:   Mon Jul 22 17:46:58 2013 +1000
  	xf86DrvMsg(pScrn->scrnIndex, from, "Using %s cursor\n",
  		pNv->HWCursor ? "HW" : "SW");
  
-@@ -1072,7 +1182,7 @@
+@@ -1081,7 +1191,7 @@
+ 
+ 	if (pNv->AccelMethod > NONE && pNv->dev->chipset >= 0x11) {
+ 		from = X_DEFAULT;
+-		pNv->glx_vblank = TRUE;
++		pNv->glx_vblank = !xorgMir;
+ 		if (xf86GetOptValBool(pNv->Options, OPTION_GLX_VBLANK,
  				      &pNv->glx_vblank))
  			from = X_CONFIG;
- 		else
--			pNv->glx_vblank = TRUE;
-+			pNv->glx_vblank = !xorgMir;
- 
- 		xf86DrvMsg(pScrn->scrnIndex, from, "GLX sync to VBlank %s.\n",
- 			   pNv->glx_vblank ? "enabled" : "disabled");
-@@ -1148,7 +1258,13 @@
+@@ -1160,7 +1270,13 @@
  			   pNv->has_async_pageflip ? "kernel" : "ddx");
  #endif
  
@@ -322,7 +322,7 @@ Date:   Mon Jul 22 17:46:58 2013 +1000
  	if (ret == FALSE)
  		NVPreInitFail("Kernel modesetting failed to initialize\n");
  
-@@ -1245,7 +1361,8 @@
+@@ -1257,7 +1373,8 @@
  {
  	NVPtr pNv = NVPTR(pScrn);
  
@@ -332,7 +332,7 @@ Date:   Mon Jul 22 17:46:58 2013 +1000
  
  	nouveau_bo_ref(NULL, &pNv->transfer);
  	nouveau_bo_ref(NULL, &pNv->scanout);
-@@ -1467,6 +1584,11 @@
+@@ -1479,6 +1596,11 @@
  	 */
  	miDCInitialize(pScreen, xf86GetPointerScreenFuncs());
  
@@ -344,7 +344,7 @@ Date:   Mon Jul 22 17:46:58 2013 +1000
  	/*
  	 * Initialize HW cursor layer. 
  	 * Must follow software cursor initialization.
-@@ -1510,6 +1632,8 @@
+@@ -1522,6 +1644,8 @@
  	pNv->CreateScreenResources = pScreen->CreateScreenResources;
  	pScreen->CreateScreenResources = NVCreateScreenResources;
  
@@ -353,7 +353,7 @@ Date:   Mon Jul 22 17:46:58 2013 +1000
  #ifdef NOUVEAU_PIXMAP_SHARING
  	pScreen->StartPixmapTracking = PixmapStartDirtyTracking;
  	pScreen->StopPixmapTracking = PixmapStopDirtyTracking;
-@@ -1526,19 +1650,19 @@
+@@ -1538,19 +1662,19 @@
  	 * Initialize colormap layer.
  	 * Must follow initialization of the default colormap 
  	 */
@@ -393,7 +393,7 @@ Date:   Mon Jul 22 17:46:58 2013 +1000
  #if XF86_CRTC_VERSION >= 5
  #define NOUVEAU_PIXMAP_SHARING 1
  #endif
-@@ -136,6 +144,8 @@
+@@ -140,6 +148,8 @@
  	PixmapPtr pspix, pmpix, pdpix;
  	PicturePtr pspict, pmpict;
  	Pixel fg_colour;

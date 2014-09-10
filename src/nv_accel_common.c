@@ -81,7 +81,7 @@ nouveau_allocate_surface(ScrnInfoPtr scrn, int width, int height, int bpp,
 				cfg.nvc0.memtype = 0xfe;
 
 			height = NOUVEAU_ALIGN(height,
-				 NVC0_TILE_HEIGHT(cfg.nv50.tile_mode));
+				 NVC0_TILE_HEIGHT(cfg.nvc0.tile_mode));
 		} else if (pNv->Architecture >= NV_TESLA) {
 			if      (height > 32) cfg.nv50.tile_mode = 0x040;
 			else if (height > 16) cfg.nv50.tile_mode = 0x030;
@@ -135,24 +135,27 @@ NV11SyncToVBlank(PixmapPtr ppix, BoxPtr box)
 	ScrnInfoPtr pScrn = xf86ScreenToScrn(ppix->drawable.pScreen);
 	NVPtr pNv = NVPTR(pScrn);
 	struct nouveau_pushbuf *push = pNv->pushbuf;
-	int crtcs;
+	int head;
+	xf86CrtcPtr crtc;
 
 	if (!nouveau_exa_pixmap_is_onscreen(ppix))
 		return;
 
-	crtcs = nv_window_belongs_to_crtc(pScrn, box->x1, box->y1,
-					  box->x2 - box->x1,
-					  box->y2 - box->y1);
-	if (!crtcs)
+	crtc = nouveau_pick_best_crtc(pScrn, FALSE, box->x1, box->y1,
+                                  box->x2 - box->x1,
+                                  box->y2 - box->y1);
+	if (!crtc)
 		return;
 
 	if (!PUSH_SPACE(push, 8))
 		return;
 
+	head = drmmode_head(crtc);
+
 	BEGIN_NV04(push, SUBC_BLIT(0x0000012C), 1);
 	PUSH_DATA (push, 0);
 	BEGIN_NV04(push, SUBC_BLIT(0x00000134), 1);
-	PUSH_DATA (push, ffs(crtcs) - 1);
+	PUSH_DATA (push, head);
 	BEGIN_NV04(push, SUBC_BLIT(0x00000100), 1);
 	PUSH_DATA (push, 0);
 	BEGIN_NV04(push, SUBC_BLIT(0x00000130), 1);

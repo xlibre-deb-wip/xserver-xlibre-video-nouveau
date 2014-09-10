@@ -36,21 +36,17 @@ static RRCrtcPtr
 nouveau_present_crtc(WindowPtr window)
 {
 	ScrnInfoPtr scrn = xf86ScreenToScrn(window->drawable.pScreen);
-	xf86CrtcConfigPtr xf86_config = XF86_CRTC_CONFIG_PTR(scrn);
 	xf86CrtcPtr crtc;
-	unsigned mask;
-	int head;
 
-	mask = nv_window_belongs_to_crtc(scrn, window->drawable.x,
-					       window->drawable.y,
-					       window->drawable.width,
-					       window->drawable.height);
+	crtc = nouveau_pick_best_crtc(scrn, FALSE,
+                                  window->drawable.x,
+                                  window->drawable.y,
+                                  window->drawable.width,
+                                  window->drawable.height);
 
-	head = ffs(mask) - 1;
-	if (head < 0 || head >= xf86_config->num_crtc)
+	if (!crtc)
 		return NULL;
 
-	crtc = xf86_config->crtc[head];
 	if (crtc->rotatedData)
 		return NULL;
 
@@ -61,21 +57,12 @@ static int
 nouveau_present_ust_msc(RRCrtcPtr rrcrtc, uint64_t *ust, uint64_t *msc)
 {
 	xf86CrtcPtr crtc = rrcrtc->devPrivate;
-	xf86CrtcConfigPtr xf86_config = XF86_CRTC_CONFIG_PTR(crtc->scrn);
 	NVPtr pNv = NVPTR(crtc->scrn);
 	drmVBlank args;
-	int ret, i;
-
-	for (i = 0; i < xf86_config->num_crtc; i++) {
-		if (xf86_config->crtc[i] == crtc)
-			break;
-	}
-
-	if (i == xf86_config->num_crtc)
-		return BadMatch;
+	int ret;
 
 	args.request.type = DRM_VBLANK_RELATIVE;
-	args.request.type |= i << DRM_VBLANK_HIGH_CRTC_SHIFT;
+	args.request.type |= drmmode_head(crtc) << DRM_VBLANK_HIGH_CRTC_SHIFT;
 	args.request.sequence = 0,
 	args.request.signal = 0,
 
@@ -111,20 +98,11 @@ static int
 nouveau_present_vblank_queue(RRCrtcPtr rrcrtc, uint64_t event_id, uint64_t msc)
 {
 	xf86CrtcPtr crtc = rrcrtc->devPrivate;
-	xf86CrtcConfigPtr xf86_config = XF86_CRTC_CONFIG_PTR(crtc->scrn);
 	NVPtr pNv = NVPTR(crtc->scrn);
 	drmVBlank args;
 	struct nouveau_present_vblank *event;
 	void *token;
-	int ret, i;
-
-	for (i = 0; i < xf86_config->num_crtc; i++) {
-		if (xf86_config->crtc[i] == crtc)
-			break;
-	}
-
-	if (i == xf86_config->num_crtc)
-		return BadMatch;
+	int ret;
 
 	event = drmmode_event_queue(crtc->scrn, event_id, sizeof(*event),
 				    nouveau_present_vblank, &token);
@@ -134,7 +112,7 @@ nouveau_present_vblank_queue(RRCrtcPtr rrcrtc, uint64_t event_id, uint64_t msc)
 	event->msc = msc;
 
 	args.request.type = DRM_VBLANK_ABSOLUTE | DRM_VBLANK_EVENT;
-	args.request.type |= i << DRM_VBLANK_HIGH_CRTC_SHIFT;
+	args.request.type |= drmmode_head(crtc) << DRM_VBLANK_HIGH_CRTC_SHIFT;
 	args.request.sequence = msc;
 	args.request.signal = (unsigned long)token;
 
@@ -250,18 +228,18 @@ nouveau_present_flip_exec(ScrnInfoPtr scrn, uint64_t event_id, int sync,
 
 			for (i = 0; i < config->num_crtc; i++) {
 				int type = vsync ? 0 : DRM_MODE_PAGE_FLIP_ASYNC;
-				int head = drmmode_head(config->crtc[i]);
+				int crtc = drmmode_crtc(config->crtc[i]);
 				void *user = NULL;
 
 				if (!config->crtc[i]->enabled)
 					continue;
 
-				if (token && ((head == sync) || (i == last))) {
+				if (token && ((crtc == sync) || (i == last))) {
 					type |= DRM_MODE_PAGE_FLIP_EVENT;
 					user  = token;
 				}
 
-				ret = drmModePageFlip(pNv->dev->fd, head,
+				ret = drmModePageFlip(pNv->dev->fd, crtc,
 						      next_fb, type, user);
 				if (ret == 0 && user) {
 					token = NULL;
@@ -288,7 +266,7 @@ nouveau_present_flip_next(RRCrtcPtr rrcrtc, uint64_t event_id,
 {
 	xf86CrtcPtr crtc = rrcrtc->devPrivate;
 	ScrnInfoPtr scrn = crtc->scrn;
-	return nouveau_present_flip_exec(scrn, event_id, drmmode_head(crtc),
+	return nouveau_present_flip_exec(scrn, event_id, drmmode_crtc(crtc),
 					 target_msc, pixmap, vsync);
 }
 

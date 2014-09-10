@@ -59,6 +59,7 @@ typedef struct {
 typedef struct {
     drmmode_ptr drmmode;
     drmModeCrtcPtr mode_crtc;
+    int hw_crtc_index;
     struct nouveau_bo *cursor;
     struct nouveau_bo *rotate_bo;
     int rotate_pitch;
@@ -112,10 +113,17 @@ drmmode_pixmap(PixmapPtr ppix)
 }
 
 int
-drmmode_head(xf86CrtcPtr crtc)
+drmmode_crtc(xf86CrtcPtr crtc)
 {
 	drmmode_crtc_private_ptr drmmode_crtc = crtc->driver_private;
 	return drmmode_crtc->mode_crtc->crtc_id;
+}
+
+int
+drmmode_head(xf86CrtcPtr crtc)
+{
+	drmmode_crtc_private_ptr drmmode_crtc = crtc->driver_private;
+	return drmmode_crtc->hw_crtc_index;
 }
 
 void
@@ -125,6 +133,14 @@ drmmode_swap(ScrnInfoPtr scrn, uint32_t next, uint32_t *prev)
 	*prev = drmmode->fb_id;
 	drmmode->fb_id = next;
 }
+
+#if !HAVE_XORG_LIST
+#define xorg_list                       list
+#define xorg_list_for_each_entry        list_for_each_entry
+#define xorg_list_for_each_entry_safe   list_for_each_entry_safe
+#define xorg_list_append                list_append
+#define xorg_list_del                   list_del
+#endif
 
 struct drmmode_event {
 	struct xorg_list head;
@@ -730,22 +746,24 @@ static const xf86CrtcFuncsRec drmmode_crtc_funcs = {
 };
 
 
-static void
+static unsigned int
 drmmode_crtc_init(ScrnInfoPtr pScrn, drmmode_ptr drmmode, int num)
 {
 	NVPtr pNv = NVPTR(pScrn);
+	NVEntPtr pNVEnt = NVEntPriv(pScrn);
 	xf86CrtcPtr crtc;
 	drmmode_crtc_private_ptr drmmode_crtc;
 	int ret;
 
 	crtc = xf86CrtcCreate(pScrn, &drmmode_crtc_funcs);
 	if (crtc == NULL)
-		return;
+		return 0;
 
 	drmmode_crtc = xnfcalloc(sizeof(drmmode_crtc_private_rec), 1);
 	drmmode_crtc->mode_crtc = drmModeGetCrtc(drmmode->fd,
 						 drmmode->mode_res->crtcs[num]);
 	drmmode_crtc->drmmode = drmmode;
+	drmmode_crtc->hw_crtc_index = num;
 
 	ret = nouveau_bo_new(pNv->dev, NOUVEAU_BO_GART | NOUVEAU_BO_MAP, 0,
 			     64*64*4, NULL, &drmmode_crtc->cursor);
@@ -753,7 +771,12 @@ drmmode_crtc_init(ScrnInfoPtr pScrn, drmmode_ptr drmmode, int num)
 
 	crtc->driver_private = drmmode_crtc;
 
-	return;
+	/* Mark num'th crtc as in use on this device. */
+	pNVEnt->assigned_crtcs |= (1 << num);
+	xf86DrvMsg(pScrn->scrnIndex, X_INFO,
+		   "Allocated crtc nr. %d to this screen.\n", num);
+
+	return 1;
 }
 
 static xf86OutputStatus
@@ -1180,7 +1203,7 @@ drmmode_zaphod_match(ScrnInfoPtr pScrn, const char *s, char *output_name)
     return FALSE;
 }
 
-static void
+static unsigned int
 drmmode_output_init(ScrnInfoPtr pScrn, drmmode_ptr drmmode, int num)
 {
 	NVPtr pNv = NVPTR(pScrn);
@@ -1194,12 +1217,12 @@ drmmode_output_init(ScrnInfoPtr pScrn, drmmode_ptr drmmode, int num)
 	koutput = drmModeGetConnector(drmmode->fd,
 				      drmmode->mode_res->connectors[num]);
 	if (!koutput)
-		return;
+		return 0;
 
 	kencoder = drmModeGetEncoder(drmmode->fd, koutput->encoders[0]);
 	if (!kencoder) {
 		drmModeFreeConnector(koutput);
-		return;
+		return 0;
 	}
 
 	if (koutput->connector_type >= NUM_OUTPUT_NAMES)
@@ -1222,18 +1245,18 @@ drmmode_output_init(ScrnInfoPtr pScrn, drmmode_ptr drmmode, int num)
 			if (!drmmode_zaphod_match(pScrn, s, name)) {
 				drmModeFreeEncoder(kencoder);
 				drmModeFreeConnector(koutput);
-				return;
+				return 0;
 			}
 		} else {
 			if (pNv->Primary && (num != 0)) {
 				drmModeFreeEncoder(kencoder);
 				drmModeFreeConnector(koutput);
-				return;
+				return 0;
 			} else
 			if (pNv->Secondary && (num != 1)) {
 				drmModeFreeEncoder(kencoder);
 				drmModeFreeConnector(koutput);
-				return;
+				return 0;
 			}
 		}
 	}
@@ -1242,7 +1265,7 @@ drmmode_output_init(ScrnInfoPtr pScrn, drmmode_ptr drmmode, int num)
 	if (!output) {
 		drmModeFreeEncoder(kencoder);
 		drmModeFreeConnector(koutput);
-		return;
+		return 0;
 	}
 
 	drmmode_output = calloc(sizeof(drmmode_output_private_rec), 1);
@@ -1250,7 +1273,7 @@ drmmode_output_init(ScrnInfoPtr pScrn, drmmode_ptr drmmode, int num)
 		xf86OutputDestroy(output);
 		drmModeFreeConnector(koutput);
 		drmModeFreeEncoder(kencoder);
-		return;
+		return 0;
 	}
 
 	drmmode_output->output_id = drmmode->mode_res->connectors[num];
@@ -1268,6 +1291,8 @@ drmmode_output_init(ScrnInfoPtr pScrn, drmmode_ptr drmmode, int num)
 
 	output->interlaceAllowed = true;
 	output->doubleScanAllowed = true;
+
+	return 1;
 }
 
 static Bool
@@ -1383,7 +1408,9 @@ static const xf86CrtcConfigFuncsRec drmmode_xf86crtc_config_funcs = {
 Bool drmmode_pre_init(ScrnInfoPtr pScrn, int fd, int cpp)
 {
 	drmmode_ptr drmmode;
+	NVEntPtr pNVEnt = NVEntPriv(pScrn);
 	int i;
+	unsigned int crtcs_needed = 0;
 
 	drmmode = xnfalloc(sizeof *drmmode);
 	drmmode->fd = fd;
@@ -1406,14 +1433,24 @@ Bool drmmode_pre_init(ScrnInfoPtr pScrn, int fd, int cpp)
 		goto done;
 	}
 
+	xf86DrvMsg(pScrn->scrnIndex, X_INFO, "Initializing outputs ...\n");
+	for (i = 0; i < drmmode->mode_res->count_connectors; i++)
+		crtcs_needed += drmmode_output_init(pScrn, drmmode, i);
+
+	xf86DrvMsg(pScrn->scrnIndex, X_INFO,
+		   "%d crtcs needed for screen.\n", crtcs_needed);
+
 	for (i = 0; i < drmmode->mode_res->count_crtcs; i++) {
 		if (!xf86IsEntityShared(pScrn->entityList[0]) ||
-		     (pScrn->confScreen->device->screen == i))
-			drmmode_crtc_init(pScrn, drmmode, i);
+		    (crtcs_needed && !(pNVEnt->assigned_crtcs & (1 << i))))
+			crtcs_needed -= drmmode_crtc_init(pScrn, drmmode, i);
 	}
 
-	for (i = 0; i < drmmode->mode_res->count_connectors; i++)
-		drmmode_output_init(pScrn, drmmode, i);
+	/* All ZaphodHeads outputs provided with matching crtcs? */
+	if (xf86IsEntityShared(pScrn->entityList[0]) && (crtcs_needed > 0))
+		xf86DrvMsg(pScrn->scrnIndex, X_WARNING,
+			   "%d ZaphodHeads crtcs unavailable. Trouble!\n",
+			   crtcs_needed);
 
 done:
 #ifdef NOUVEAU_PIXMAP_SHARING
@@ -1559,6 +1596,7 @@ drmmode_screen_init(ScreenPtr pScreen)
 {
 	ScrnInfoPtr scrn = xf86ScreenToScrn(pScreen);
 	drmmode_ptr drmmode = drmmode_from_scrn(scrn);
+	NVEntPtr pNVEnt = NVEntPriv(scrn);
 
 	/* Setup handler for DRM events */
 	drmmode_event_init(scrn);
@@ -1566,10 +1604,17 @@ drmmode_screen_init(ScreenPtr pScreen)
 	/* Setup handler for udevevents */
 	drmmode_uevent_init(scrn);
 
-	/* Register a wakeup handler to get informed on DRM events */
-	AddGeneralSocket(drmmode->fd);
-	RegisterBlockAndWakeupHandlers((BlockHandlerProcPtr)NoopDDA,
-				       drmmode_wakeup_handler, scrn);
+	/* Register wakeup handler only once per servergen, so ZaphodHeads work */
+	if (pNVEnt->fd_wakeup_registered != serverGeneration) {
+		/* Register a wakeup handler to get informed on DRM events */
+		AddGeneralSocket(drmmode->fd);
+		RegisterBlockAndWakeupHandlers((BlockHandlerProcPtr)NoopDDA,
+		                               drmmode_wakeup_handler, scrn);
+		pNVEnt->fd_wakeup_registered = serverGeneration;
+		pNVEnt->fd_wakeup_ref = 1;
+	}
+	else
+		pNVEnt->fd_wakeup_ref++;
 }
 
 void
@@ -1577,11 +1622,17 @@ drmmode_screen_fini(ScreenPtr pScreen)
 {
 	ScrnInfoPtr scrn = xf86ScreenToScrn(pScreen);
 	drmmode_ptr drmmode = drmmode_from_scrn(scrn);
+	NVEntPtr pNVEnt = NVEntPriv(scrn);
 
-	/* Unregister wakeup handler */
-	RemoveBlockAndWakeupHandlers((BlockHandlerProcPtr)NoopDDA,
-				     drmmode_wakeup_handler, scrn);
-	RemoveGeneralSocket(drmmode->fd);
+	/* Unregister wakeup handler after last x-screen for this servergen dies. */
+	if (pNVEnt->fd_wakeup_registered == serverGeneration &&
+		!--pNVEnt->fd_wakeup_ref) {
+
+		/* Unregister wakeup handler */
+		RemoveBlockAndWakeupHandlers((BlockHandlerProcPtr)NoopDDA,
+		                             drmmode_wakeup_handler, scrn);
+		RemoveGeneralSocket(drmmode->fd);
+	}
 
 	/* Tear down udev event handler */
 	drmmode_uevent_fini(scrn);

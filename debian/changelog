@@ -1,3 +1,12 @@
+xserver-xorg-video-nouveau (1:1.0.11-1) unstable; urgency=low
+
+  * New upstream release (Closes: #760265).
+  * Bump Standards-Version to 3.9.5, no changes needed.
+  * Remove Cyril Brulebois from Uploaders.
+  * Update debian/copyright.
+
+ -- Sven Joachim <svenjoac@gmx.de>  Sat, 06 Sep 2014 09:56:23 +0200
+
 xserver-xorg-video-nouveau (1:1.0.10-1ubuntu1) trusty; urgency=low
 
   * Merge from debian-unstable. Remaining Ubuntu diff:

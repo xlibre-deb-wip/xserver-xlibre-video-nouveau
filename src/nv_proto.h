@@ -12,6 +12,7 @@ Bool drmmode_page_flip(DrawablePtr draw, PixmapPtr back, void *priv,
 void drmmode_screen_init(ScreenPtr pScreen);
 void drmmode_screen_fini(ScreenPtr pScreen);
 
+int  drmmode_crtc(xf86CrtcPtr crtc);
 int  drmmode_head(xf86CrtcPtr crtc);
 void drmmode_swap(ScrnInfoPtr, uint32_t, uint32_t *);
 
@@ -42,6 +43,8 @@ void NVTakedownVideo(ScrnInfoPtr);
 void NVSetPortDefaults (ScrnInfoPtr pScrn, NVPortPrivPtr pPriv);
 void NVXVComputeBicubicFilter(struct nouveau_bo *, unsigned, unsigned);
 unsigned int nv_window_belongs_to_crtc(ScrnInfoPtr, int, int, int, int);
+xf86CrtcPtr nouveau_pick_best_crtc(ScrnInfoPtr pScrn, Bool consider_disabled,
+                                   int x, int y, int w, int h);
 
 /* in nouveau_exa.c */
 Bool nouveau_exa_init(ScreenPtr pScreen);

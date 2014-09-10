@@ -3,7 +3,7 @@ Section: x11
 Priority: optional
 Maintainer: Ubuntu X-SWAT <ubuntu-x@lists.ubuntu.com>
 XSBC-Original-Maintainer: Debian X Strike Force <debian-x@lists.debian.org>
-Uploaders: Cyril Brulebois <kibi@debian.org>, Sven Joachim <svenjoac@gmx.de>
+Uploaders: Sven Joachim <svenjoac@gmx.de>
 Build-Depends:
  debhelper (>= 8),
  dh-autoreconf,
@@ -24,7 +24,7 @@ Build-Depends:
  libtool,
  xutils-dev,
  quilt,
-Standards-Version: 3.9.4
+Standards-Version: 3.9.5
 Homepage: http://nouveau.freedesktop.org/wiki/
 Vcs-Git: git://anonscm.debian.org/pkg-xorg/driver/xserver-xorg-video-nouveau
 Vcs-Browser: http://anonscm.debian.org/gitweb/?p=pkg-xorg/driver/xserver-xorg-video-nouveau.git

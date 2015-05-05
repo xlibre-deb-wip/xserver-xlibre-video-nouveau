@@ -2,7 +2,7 @@ Source: xserver-xorg-video-nouveau
 Section: x11
 Priority: optional
 Maintainer: Debian X Strike Force <debian-x@lists.debian.org>
-Uploaders: Sven Joachim <svenjoac@gmx.de>
+# Uploaders: nobody, volunteers needed!
 Build-Depends:
  debhelper (>= 8),
  dh-autoreconf,

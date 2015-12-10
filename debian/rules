@@ -6,7 +6,9 @@ export LDFLAGS := $(shell dpkg-buildflags --get LDFLAGS)
 
 # Needed to find ChangeLog, and for verbose build logs:
 override_dh_auto_configure:
-	dh_auto_configure -- CURDIR="$(CURDIR)" --disable-silent-rules
+	dh_auto_configure -- CURDIR="$(CURDIR)" \
+			     --disable-silent-rules \
+			     --libdir=/usr/lib
 
 # Install in debian/tmp to retain control through dh_install:
 override_dh_auto_install:

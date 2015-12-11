@@ -1,12 +1,13 @@
-xserver-xorg-video-nouveau (1:1.0.12-1) UNRELEASED; urgency=medium
+xserver-xorg-video-nouveau (1:1.0.12-1) unstable; urgency=medium
 
+  * Team upload.
   * New upstream release.
   * Bump debhelper compat level to 9.
   * Let uscan verify tarball signatures.
   * Bump Standards-Version to 3.9.6, no changes needed.
   * Remove myself from Uploaders.
 
- -- Sven Joachim <svenjoac@gmx.de>  Tue, 05 May 2015 20:15:52 +0200
+ -- Sven Joachim <svenjoac@gmx.de>  Fri, 11 Dec 2015 17:27:01 +0100
 
 xserver-xorg-video-nouveau (1:1.0.11-1) unstable; urgency=low
 

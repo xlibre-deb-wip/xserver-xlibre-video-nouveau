@@ -14,7 +14,7 @@ Build-Depends:
  x11proto-randr-dev (>= 1.2),
  x11proto-render-dev,
  x11proto-xext-dev,
- libdrm-dev (>= 2.4.40-1),
+ libdrm-dev (>= 2.4.60),
  x11proto-dri2-dev,
  x11proto-gl-dev,
  mesa-common-dev,

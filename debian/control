@@ -16,8 +16,6 @@ Build-Depends:
  x11proto-xext-dev,
  libdrm-dev (>= 2.4.60),
  x11proto-dri2-dev,
- x11proto-gl-dev,
- mesa-common-dev,
  libudev-dev,
  automake,
  libtool,

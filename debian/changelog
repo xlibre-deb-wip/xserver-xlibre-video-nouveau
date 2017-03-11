@@ -1,9 +1,10 @@
-xserver-xorg-video-nouveau (1:1.0.13-2) UNRELEASED; urgency=medium
+xserver-xorg-video-nouveau (1:1.0.13-2) unstable; urgency=medium
 
+  * Team upload.
   * Cherry-pick commit 924083938c ("Consider CRTCs disabled when DPMS is
     off") from upstream.
 
- -- Sven Joachim <svenjoac@gmx.de>  Thu, 09 Mar 2017 16:43:23 +0100
+ -- Sven Joachim <svenjoac@gmx.de>  Sat, 11 Mar 2017 09:00:49 +0100
 
 xserver-xorg-video-nouveau (1:1.0.13-1) unstable; urgency=medium
 

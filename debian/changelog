@@ -1,3 +1,10 @@
+xserver-xorg-video-nouveau (1:1.0.14-1) UNRELEASED; urgency=medium
+
+  * New upstream release.
+    - Provide acceleration support for Maxwell cards.
+
+ -- Sven Joachim <svenjoac@gmx.de>  Mon, 13 Mar 2017 20:52:13 +0100
+
 xserver-xorg-video-nouveau (1:1.0.13-2) unstable; urgency=medium
 
   * Team upload.

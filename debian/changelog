@@ -1,12 +1,13 @@
-xserver-xorg-video-nouveau (1:1.0.14-1) UNRELEASED; urgency=medium
+xserver-xorg-video-nouveau (1:1.0.14-1) experimental; urgency=low
 
+  * Team upload.
   * New upstream release.
     - Provide acceleration support for Maxwell cards.
   * Add Lyude's key C5469FB8758F9C2B to debian/upstream/signing-key.asc.
   * Drop xserver-xorg-video-nouveau-dbg in favor of an automatic
     xserver-xorg-video-nouveau-dbgsym package.
 
- -- Sven Joachim <svenjoac@gmx.de>  Mon, 13 Mar 2017 20:52:13 +0100
+ -- Sven Joachim <svenjoac@gmx.de>  Wed, 15 Mar 2017 17:53:03 +0100
 
 xserver-xorg-video-nouveau (1:1.0.13-2) unstable; urgency=medium
 

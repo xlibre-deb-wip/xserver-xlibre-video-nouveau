@@ -42,19 +42,3 @@ Description: X.Org X server -- Nouveau display driver
  RandR.  3D functionality is provided by the libgl1-mesa-dri package.
  .
  This package is built from the FreeDesktop.org xf86-video-nouveau driver.
-
-Package: xserver-xorg-video-nouveau-dbg
-Architecture: linux-any
-Depends:
- ${misc:Depends},
- xserver-xorg-video-nouveau (= ${binary:Version}),
-Section: debug
-Priority: extra
-Description: X.Org X server -- Nouveau display driver (debug symbols)
- This driver for the X.Org X server (see xserver-xorg for a further description)
- provides support for NVIDIA Riva, TNT, GeForce, and Quadro cards.
- .
- This package provides 2D support including EXA acceleration, Xv and
- RandR.  3D functionality is provided by the libgl1-mesa-dri package.
- .
- This package provides debugging symbols for this Xorg X driver.

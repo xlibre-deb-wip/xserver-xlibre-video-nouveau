@@ -1,9 +1,10 @@
-xserver-xorg-video-nouveau (1:1.0.15-1) UNRELEASED; urgency=low
+xserver-xorg-video-nouveau (1:1.0.15-1) experimental; urgency=low
 
+  * Team upload.
   * New upstream release.
     - Add support for Pascal cards.
 
- -- Sven Joachim <svenjoac@gmx.de>  Sat, 22 Apr 2017 09:28:46 +0200
+ -- Sven Joachim <svenjoac@gmx.de>  Sat, 22 Apr 2017 09:33:48 +0200
 
 xserver-xorg-video-nouveau (1:1.0.14-1) experimental; urgency=low
 

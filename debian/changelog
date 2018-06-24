@@ -1,3 +1,10 @@
+xserver-xorg-video-nouveau (1:1.0.15-3) UNRELEASED; urgency=medium
+
+  * Apply proposed patch to fix a null pointer dereference in
+    drmmode_output_dpms() (Closes: #896979).
+
+ -- Sven Joachim <svenjoac@gmx.de>  Sun, 24 Jun 2018 18:46:02 +0200
+
 xserver-xorg-video-nouveau (1:1.0.15-2) unstable; urgency=medium
 
   * Team upload.

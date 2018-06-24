@@ -1,0 +1,28 @@
+From 0b9605a237b084c0a0b5bd261e5a561ec34bd8f8 Mon Sep 17 00:00:00 2001
+From: John Lindgren <john@jlindgren.net>
+Date: Thu, 21 Jun 2018 10:47:46 -0400
+Subject: [PATCH] Fix null pointer dereference in drmmode_output_dpms
+
+This fixes an Xorg crash when a Lenovo P50 laptop is undocked,
+disconnecting it from two external DisplayPort monitors.
+---
+ src/drmmode_display.c | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/src/drmmode_display.c b/src/drmmode_display.c
+index 04a0b57..cbe68c1 100644
+--- a/src/drmmode_display.c
++++ b/src/drmmode_display.c
+@@ -918,6 +918,9 @@ drmmode_output_dpms(xf86OutputPtr output, int mode)
+ 	drmmode_ptr drmmode = drmmode_output->drmmode;
+ 	int mode_id = -1, i;
+ 
++	if (!koutput)
++		return;
++
+ 	for (i = 0; i < koutput->count_props; i++) {
+ 		props = drmModeGetProperty(drmmode->fd, koutput->props[i]);
+ 		if (props && (props->flags & DRM_MODE_PROP_ENUM)) {
+-- 
+2.17.1
+

@@ -10,6 +10,7 @@ xserver-xorg-video-nouveau (1:1.0.15-3) UNRELEASED; urgency=medium
   * Bump debhelper compat level to 11.
     - Drop dh-autoreconf from Build-Depends.
     - Bump quilt build dependency to (>= 0.63-8.2~) (see #851130).
+  * Bump Standards-Version to 4.1.4, no changes needed.
 
  -- Sven Joachim <svenjoac@gmx.de>  Sun, 24 Jun 2018 18:46:02 +0200
 

@@ -354,7 +354,7 @@ xserver-xorg-video-nouveau (1:0.0.16+git20100518+4b8f1a0-1) experimental; urgenc
     - Bump build-dependency on libdrm-dev to (>= 2.4.20-3~).
   * Add a NEWS.Debian for that problem and update README.Debian.
   * Add myself to Uploaders.
-  
+
  -- Julien Cristau <jcristau@debian.org>  Wed, 26 May 2010 13:28:28 +0200
 
 xserver-xorg-video-nouveau (1:0.0.15+git20100329+7858345-5) unstable; urgency=low
@@ -458,34 +458,34 @@ xserver-xorg-video-nouveau (1:0.0.10~git+20090701+c0bf670-1) experimental; urgen
     - c2d3550... kms: fix rotation buffer pitch
     - 6fd9829... kms: point rotation pixmap at correct buffer
     - 67f8ebe... nv50: create non-linear scanout buffers for rotation
-    - b7e3306... Add DVI-A output info for Mac card missing bios tables 
+    - b7e3306... Add DVI-A output info for Mac card missing bios tables
       (#21273)
     - 01b19c9... nv50: sigh
     - 4d9e63b... wfb: "mode0" tiles have the same pitch as the others
     - 02ed6b6... wfb: work-around wfb suckage
     - 669c59e... wfb: need a 64-bit datatype for multiply_factor
     - 86dedb7... fix some pitch issues
-    - 794a277... nv50: use libwfb for pixmap access when driver pixmaps 
+    - 794a277... nv50: use libwfb for pixmap access when driver pixmaps
       enabled
     - 11d9690... exa: use the sane CreatePixmap hook, if available
     - 6ee4533... xv: fix some issues with driver pixmaps
     - 67c5287... exa: wait_marker becomes a NOP with driver pixmaps
     - f44e528... nv50: make use of larger tile sizes
-    - 30c44ce... exa: create unacceleratable pixmaps (ie. 1bpp) in system 
+    - 30c44ce... exa: create unacceleratable pixmaps (ie. 1bpp) in system
       memory
-    - 1aa22d5... nv50: use non-linear scanout buffer when driver pixmaps 
+    - 1aa22d5... nv50: use non-linear scanout buffer when driver pixmaps
       enabled
     - 13d8d49... nv50: use tile_mode from bo
     - bd9f5f2... exa: fix compile against latest libdrm_nouveau
-    - 5f97afe... randr12: split from pre-randr12 structs into new header, 
+    - 5f97afe... randr12: split from pre-randr12 structs into new header,
       de-typedef
     - 0c17b87... Move head getting into nouveau_hw.c
     - 12314fa... randr12: improve uniformity of props code
     - b541c1c... Remove "TMDS table script pointers not stubbed" bios warning
     - 8af5028... Remove useless loader symbol lists.
-    - 317b581... randr12: disable lvds (invalidate all modes) if bios lvds 
+    - 317b581... randr12: disable lvds (invalidate all modes) if bios lvds
       parsing fails
-    - e897191... randr12: better behaviour (avoid crash) when fp native mode 
+    - e897191... randr12: better behaviour (avoid crash) when fp native mode
       can't be found
     - 0316748... randr12: line length improvements
     - b60c16c... Simplify tests for digital fp outputs
@@ -506,21 +506,21 @@ xserver-xorg-video-nouveau (1:0.0.10~git+20090519+9656762-1) experimental; urgen
   * New upstream snapshot (Closes: #526144, #524456)
     - 9656762... nv50: fix multiple-display hangs when encoders swap crtcs
     - d70eed9... randr12: fix digital dpms regression
-    - 1072103... exa: use exaDriverAlloc() to prevent issues across exa 
+    - 1072103... exa: use exaDriverAlloc() to prevent issues across exa
       changes
     - 8502a80... Fix server regeneration again
     - 7a796a9... randr12: off-chip lvds for nv28 (rh#487456)
-    - 5959512... 'drmCheckModesettingSupported' implicit function declaration 
+    - 5959512... 'drmCheckModesettingSupported' implicit function declaration
       fix
     - f62719e... Unused variable warning fixes
     - c8260ef... Fix crash with Xinerama enabled
     - 1a478ed... randr12: de-magic ramdac general control values
     - 6c209a8... randr12: pre-nv17 load detection
     - 3971dda... randr12: fix fp_control again again again
-    - 0ef1603... randr12: solve off-chip encoder crtc exclusion in prepare, 
+    - 0ef1603... randr12: solve off-chip encoder crtc exclusion in prepare,
       rather than dpms
     - 0447ce0... randr12: simplify nv11 digital encoder-crtc binding
-    - f69b34a... nv50: return immediately in GetDDCModes if no DDC on 
+    - f69b34a... nv50: return immediately in GetDDCModes if no DDC on
       connector...
     - 45e1618... bios: use NV_ARCH_50 to match G8x chips
     - 3d61697... nv50: remove reading back vbios-programmed lvds native mode
@@ -528,20 +528,20 @@ xserver-xorg-video-nouveau (1:0.0.10~git+20090519+9656762-1) experimental; urgen
     - 9ee2ac1... bios: remove dodgy mode-table search for g80
     - 6282574... bios: modify get_fp_strap() for g80
     - 09b832e... nv50: merge NV50SorSetClockMode and NV50SorSetClockModeLVDS
-    - ed2c185... bios/nv50: initial parsing of display script tables, not 
+    - ed2c185... bios/nv50: initial parsing of display script tables, not
       quite complete
-    - 3fccc9e... bios: some nv50 init scripts have flags in reg values, deal 
+    - 3fccc9e... bios: some nv50 init scripts have flags in reg values, deal
       with (1<<30)
     - 2b4b3da... bios: dcb location is only 2 bits
     - 7b5bfff... bios: parse BIT U table
     - e4260ec... randr12: more use of logging abstraction in modesetting code
-    - 4d0fdba... randr12: fix for off-chip dual link digital (enable extra 
+    - 4d0fdba... randr12: fix for off-chip dual link digital (enable extra
       wide interface?)
     - bb246d7... Partial fix for nv28 lvds bios parsing (part of rh#487456)
     - 2915926... plls: max_log2p_bias is likely actually max_log2p
     - 47bb00f... nv50: missed a WAIT_RING
     - 523ccec... nv50: use vbios-programmed lvds mode as native mode if no ddc
-    - fa2f111... Remove pNv->GART conditional for selecting CB_LOCATION in 
+    - fa2f111... Remove pNv->GART conditional for selecting CB_LOCATION in
       AGP/PCI
     - 7100c06... kms: fix displayWidth in resize
     - ef2de25... do e-edid for legacy modesetting path
@@ -549,19 +549,19 @@ xserver-xorg-video-nouveau (1:0.0.10~git+20090519+9656762-1) experimental; urgen
     - 960a5c8... nv50: modify ddc<->nvreg assignments again..
     - 3a6c709... kms: fix setting the randr edid property
     - a1194b3... bios: fix typo
-    - 11451ca... bios: some G8x don't have PBUS at 0x1800, us 0x88000 
+    - 11451ca... bios: some G8x don't have PBUS at 0x1800, us 0x88000
       unconditionally there
     - 62d69bd... bios: add exception for chipset 0x73 for lack of fp table
     - 620d519... consistent connector naming across <nv50, nv50 and kms
-    - a5d45c8... randr12: set 1 on cr59 for off-chip digital, 0 otherwise 
+    - a5d45c8... randr12: set 1 on cr59 for off-chip digital, 0 otherwise
       (#21023, rh#492399)
     - d63c924... randr12: unlock CR21 *after* turning off digital output
     - 11be9a9... nv50: fix i2c port addresses
-    - e2aa037... randr12: fall back to standard timings when finding native 
+    - e2aa037... randr12: fall back to standard timings when finding native
       mode (rh#492819)
     - 6965663... randr12: fix hw cursor for fully transparent pixels
     - d12f70c... randr12: pre-nv17 digital fixes
-    - ea567db... randr12: fix restore for cards where CR21 is not left 
+    - ea567db... randr12: fix restore for cards where CR21 is not left
       unlocked at POST
     - bd263d8... randr12: make nv11 dvi work for both crtcs
     - 52c287d... Every card since nv5 can do panels
@@ -573,12 +573,12 @@ xserver-xorg-video-nouveau (1:0.0.10~git+20090519+9656762-1) experimental; urgen
     - 76c5a05... bios: xf86DrvMsg->NV_ERROR
     - b1b9bcb... bios: support for pll limits table v3.0
     - 8c85b4b... kms: CONNECTORn -> CONNECTOR-n
-    - 4e1c323... Restore call to NVDRIGetVersion, to ensure the dri module is 
+    - 4e1c323... Restore call to NVDRIGetVersion, to ensure the dri module is
       loaded
     - c973f75... Abstract logging in nv_bios.c
     - b17bebd... nForce DIMM check is now in DRM
     - 9c991d3... randr12: FP_TG_CONTROL 2: dpms improvements
-    - 5fb2888... randr12: FP_TG_CONTROL 1: turn off digital path when using 
+    - 5fb2888... randr12: FP_TG_CONTROL 1: turn off digital path when using
       VGA encoder
     - 8023dc3... Split DCB 1.5 parsing from 2.0+, get closer to 80 cols
     - ea027b3... The dcb prior to v1.5 is pretty hopeless, just add a crt.
@@ -597,17 +597,17 @@ xserver-xorg-video-nouveau (1:0.0.10~git+20090519+9656762-1) experimental; urgen
     - f1907dc... nv50: add default modes to mode pool for LVDS panel
     - 7da6fdb... kms: fix bug which prevented getting edid from the kernel
     - f431e20... randr: fix crash when rotation requested
-    - 36dedd0... kms: check for mm_enabled as an additional test for kms 
+    - 36dedd0... kms: check for mm_enabled as an additional test for kms
       presence
     - a923bc1... nv50/xv: correct rendering to partically obscured windows
-    - 01cee29... nv50: call NVSync() in CloseScreen() before restoring video 
+    - 01cee29... nv50: call NVSync() in CloseScreen() before restoring video
       mode
     - aa7c037... kms: implement AdjustFrame, should fix crash in fdo#24236
     - 61879b8... kms: drm_mode_modeinfo struct changed names at some point
     - 79306fc... dri: fail harder
-    - da1ba93... device close doesn't belong in DRI close, can have DRM 
+    - da1ba93... device close doesn't belong in DRI close, can have DRM
       without DRI
-    - 56b11c7... Fix mouse cursor disappearing when near top/left edge of 
+    - 56b11c7... Fix mouse cursor disappearing when near top/left edge of
       screen.
     - 4067ab4... another ppc fix
     - 862dba8... more ppc..
@@ -616,13 +616,13 @@ xserver-xorg-video-nouveau (1:0.0.10~git+20090519+9656762-1) experimental; urgen
     - 62aa81d... Some laptop mode finding fixes resulting from rh#487456
     - aa6edfa... randr12: name VGA CRTC fields
     - 7b7c44c... randr12: rename reg state members to follow reg names
-    - 4ae6c22... randr12: name some FP flags, move some unrelated stuff out 
+    - 4ae6c22... randr12: name some FP flags, move some unrelated stuff out
       from nvreg.h
     - b50b49f... pre-nv50: use nvidia's names for PRAMDAC regs where known
     - a9df304... pre-nv50: use nvidia's names for PCRTC regs where known
-    - 2c0710d... Separate maximum limits for encoder devices and i2c records, 
+    - 2c0710d... Separate maximum limits for encoder devices and i2c records,
       DCB_ prefixes
-    - 0db27a6... Add DCB 1.5 entry from a GeForce2 Go reported by Martin 
+    - 0db27a6... Add DCB 1.5 entry from a GeForce2 Go reported by Martin
       Ketzer on the ML
     - 3e7fa97... dri: pass object handle instead of offset if using real mm
     - 88efe40... dri2: initial implementation, only with driver pixmaps
@@ -635,17 +635,17 @@ xserver-xorg-video-nouveau (1:0.0.10~git+20090519+9656762-1) experimental; urgen
     - a3dbc06... randr12: cull old unused pll code
     - 71c821b... Don't pointlessly overallocate cursor storage
     - 7284c07... randr12: nv10 hw cursor fixes/changes
-    - bcc3a14... randr12: use nv0x cursor colour expansion funcs on later 
+    - bcc3a14... randr12: use nv0x cursor colour expansion funcs on later
       cards, unify argb paths
     - b21c807... randr12: store nv0x hw cursor image in VRAM
-    - 3ea4b19... Kill pre-randr12 hwcursor code, and tidy randr12 hwcursor 
+    - 3ea4b19... Kill pre-randr12 hwcursor code, and tidy randr12 hwcursor
       code
-    - b988160... Remove calls to load ddc and i2c modules -- they're built-in 
+    - b988160... Remove calls to load ddc and i2c modules -- they're built-in
       since server 1.3
-    - d5893ec... Hack around missing display table in rdivacky's GeForce 7050 
+    - d5893ec... Hack around missing display table in rdivacky's GeForce 7050
       PV/nForce 630a
     - 369e1ef... Fix xserver shutdown for randr12 off
-    - 8343d6b... Remove bios lvds parsing pxclk test; ddc_permitted is a 
+    - 8343d6b... Remove bios lvds parsing pxclk test; ddc_permitted is a
       sufficient condition
     - 8b56c69... Name some regs/values and reduce crtc reg struct size
     - 79d23d8... improve drm/dri initialisation code
@@ -653,10 +653,10 @@ xserver-xorg-video-nouveau (1:0.0.10~git+20090519+9656762-1) experimental; urgen
     - 7a45592... kms: get current values for output properties on startup
     - 7095e89... kms: work around some xserver stupidity with DPMS
     - 8f9a580... Another DCB 1.5 entry (seen in rh#455194)
-    - 9a71990... randr12: add output properties for digital vibrance and 
+    - 9a71990... randr12: add output properties for digital vibrance and
       image sharpening
     - 678ddc2... randr12: functionate output properties creation
-    - ed9bd88... kms: remove early-exit from gamma_set, the kernel side works 
+    - ed9bd88... kms: remove early-exit from gamma_set, the kernel side works
       now
     - 98c9e4e... kms: work around some bong hits with dpms
     - 88ae2c9... kms: implement dpms
@@ -664,48 +664,48 @@ xserver-xorg-video-nouveau (1:0.0.10~git+20090519+9656762-1) experimental; urgen
     - 0b87c49... More robust PLL upclocking for old cards
     - cb237a3... bios/randr12: mode validation fixes (includes fix for #20298)
     - 9cfccd7... Handle failure to calculate pll values better
-    - 1e99440... xv: return BadAlloc if destination pixmap is not put into 
+    - 1e99440... xv: return BadAlloc if destination pixmap is not put into
       EXA offscreen (#15792)
     - 77347da... Remove duplicated DCB parsing
     - 1b6cabe... Remove VBIOS access in parse_dcb_entry
-    - 72fd0ae... randr12: no need to re-detect edid for lvds, it's not going 
+    - 72fd0ae... randr12: no need to re-detect edid for lvds, it's not going
       away
     - ae981a8... nv50: some minor modesetting changes
     - 42f99e6... nv30/xv: restore original viewport/clipping after putimage
-    - 56bb8f8... Allow parse_fp_mode_table for x86 cards that find themselves 
+    - 56bb8f8... Allow parse_fp_mode_table for x86 cards that find themselves
       on ppc
-    - 1c2f33e... Don't rely on the bios mobile feature bit for BMP biosen 
+    - 1c2f33e... Don't rely on the bios mobile feature bit for BMP biosen
       (#19986)
-    - e436c7e... randr12: make treatment of CR4B more closely resemble blob's 
+    - e436c7e... randr12: make treatment of CR4B more closely resemble blob's
       behaviour
     - c61102b... Parse bios fp mode during modesetting, removing extra alloc
-    - 631e15a... Get dual_link and dithering bios info through lvds table 
+    - 631e15a... Get dual_link and dithering bios info through lvds table
       parsing function
-    - 2d43771... Call parse_lvds_manufacturer_table during modesetting only 
+    - 2d43771... Call parse_lvds_manufacturer_table during modesetting only
       (#19986 partial fix)
     - ce8f5d7... Variety of LVDS script changes
     - 071d537... Read embedded bios edid only on demand
-    - f04689c... move memset of fb after NVSave(), hopefully fix lost VGA 
+    - f04689c... move memset of fb after NVSave(), hopefully fix lost VGA
       fonts
     - 6961efb... kms: fix check for xf86drmMode.h
-    - 76fa656... Detypedef bios_t, rename bios io functions, group various 
+    - 76fa656... Detypedef bios_t, rename bios io functions, group various
       helper functions
-    - 39c9d02... Move parsed DCB to bios structs, split into public and 
+    - 39c9d02... Move parsed DCB to bios structs, split into public and
       private parts
-    - 275daaf... Split bios struct into struct for nv_bios.c, and exported 
+    - 275daaf... Split bios struct into struct for nv_bios.c, and exported
       public info struct
     - 8b3e966... Remove never updated bios opcodes 0x31, 0x5A and 0x73
     - ce9eb05... Trivial bios convenience variable changes
     - cfeef11... exa: forgot to check if EXA_SUPPORTS_PREPARE_AUX was defined
     - 37a85dc... exa: we support PREPARE_AUX
     - 1249fd2... Revert "exa: support major version 3"
-    - 1c4a284... Rework PLL decoding in terms of pll_vals, save/restore 
+    - 1c4a284... Rework PLL decoding in terms of pll_vals, save/restore
       pll_vals on vt switch
     - 81b4732... New common struct for pll values
     - adf2e35... Check whether NV_RAMDAC_580 has changed when setting PLLs
     - b7f99ae... exa: support major version 3
     - d91fc78... kms: fix resize func
-    - 535498b... clear the scanout buffer on statup to avoid seeing garbage 
+    - 535498b... clear the scanout buffer on statup to avoid seeing garbage
       on-screen
     - 0227673... nv50/exa: properly align offset for mem_tile ioctl
     - e09f50e... bios/randr12: fix dual link TMDS (#20006)
@@ -716,14 +716,14 @@ xserver-xorg-video-nouveau (1:0.0.10~git+20090519+9656762-1) experimental; urgen
     - 9179c66... Variety of DCB enhancements
     - 317ca47... Revert "bios: fix create_i2c_device for g80"
     - 7b25a30... nv04: unbreak copy
-    - 60c8bb1... default to autodetecting whether to enable the driver's kms 
+    - 60c8bb1... default to autodetecting whether to enable the driver's kms
       paths
     - a31b1d0... exa: reimplement driver-controlled pixmaps
     - d97e993... exa: preparation for reintroducing driver-controlled pixmaps
     - 1e00c7d... shadowfb: clip copied regions to frontbuffer size.
     - efe2796... nv50: correct a poorly written comment
     - 2573c06... exa: remove exaWaitSync() call in nouveau_exa_pixmap_map()
-    - 5000535... exa: don't need exaMarkSync on DFS, the operation will be 
+    - 5000535... exa: don't need exaMarkSync on DFS, the operation will be
       done already
     - a7e7c55... xv: remove notifier usage
     - 8ecb8d5... exa: remove notifier waits in UTS/DFS
@@ -735,26 +735,26 @@ xserver-xorg-video-nouveau (1:0.0.10~git+20090519+9656762-1) experimental; urgen
     - 17e9d4b... randr12: use bios PLL setting routines for modesetting
     - e444e0e... Readability improvements for nv_hw.c and nvreg.h
     - f5ea66c... Pull in extras from CRTC PLL code to bios routines
-    - 4166365... Pull out ramdac580 setting and powerctrl_1 shift code to 
+    - 4166365... Pull out ramdac580 setting and powerctrl_1 shift code to
       separate functions
     - 8b70418... Miscellaneous fixes to bios PLL code
-    - 01bb4c1... Make PROM score badly, out of available bios images, if 
+    - 01bb4c1... Make PROM score badly, out of available bios images, if
       checksum bad
-    - 30848dd... randr12: bodge-in continuous timings when the scaler is in 
+    - 30848dd... randr12: bodge-in continuous timings when the scaler is in
       use (#19203)
-    - 0387ac3... Allow reading of PROM and PCI rom on PPC (for people using 
+    - 0387ac3... Allow reading of PROM and PCI rom on PPC (for people using
       x86 cards)
-    - 6ad66c0... bios/randr12: be strict about when to use modes from bios vs 
+    - 6ad66c0... bios/randr12: be strict about when to use modes from bios vs
       modes from ddc
-    - b5391eb... Simplify FP strapping semantics and trust bios parsing of 
+    - b5391eb... Simplify FP strapping semantics and trust bios parsing of
       use_straps_for_mode
-    - 34c2b15... bios/randr12: misc (mainly lvds related) clarifications and 
+    - 34c2b15... bios/randr12: misc (mainly lvds related) clarifications and
       cleanups
     - 98b8cad... Always allocate 2 hw cursors.
     - f109981... Fix a few warnings.
     - 691589d... Fix some cursor fallout, mostly in legacy code.
     - 945f0cb... kms: update drmmode_display
-    - ba1f897... keep resources around after leavevt, far too problematic 
+    - ba1f897... keep resources around after leavevt, far too problematic
       currently
   * Bump Standards-Version to 3.8.1.
   * Bump build dependency on libdrm-dev to 2.4.11.
@@ -768,33 +768,33 @@ xserver-xorg-video-nouveau (1:0.0.10~git+20090205+4dfd0b1-1) experimental; urgen
     - e02813a... link against libdrm_nouveau (installed with libdrm)
     - 2c06308... require drm 0.0.12
     - 29aa134... fix NoAccel from when map/unmap became stricter
-    - 62adc55... Revert "Improve the NoAccel situation, but it's not working 
+    - 62adc55... Revert "Improve the NoAccel situation, but it's not working
       yet."
     - 285027a... Improve the NoAccel situation, but it's not working yet.
-    - 5e63c78... Revert "nv50: make entire offscreen area tiled, use extra 
+    - 5e63c78... Revert "nv50: make entire offscreen area tiled, use extra
       blits to scanout buffer"
-    - 6c3f8da... nv50: make entire offscreen area tiled, use extra blits to 
+    - 6c3f8da... nv50: make entire offscreen area tiled, use extra blits to
       scanout buffer
     - 6179102... nv10: use the correct 3d object on NV1A
-    - dfd87ec... xv: Unmap filter table BO after init so it can be validated 
+    - dfd87ec... xv: Unmap filter table BO after init so it can be validated
       (nv30,40)
     - b8de749... Avoid any risk of parsing oscillation on if_is_24bit
-    - 0a0bb72... Split up parsing the bit structure, complain when necessary 
+    - 0a0bb72... Split up parsing the bit structure, complain when necessary
       tables are missing
-    - 2d86018... Swap the order of calling parse_fp_mode_table and 
+    - 2d86018... Swap the order of calling parse_fp_mode_table and
       parse_lvds_manufacturer_table
     - 8c6b3a8... Make calling of init bios functions common
-    - 9b32034... Don't read obviously useless bios images, and drop 5x 
+    - 9b32034... Don't read obviously useless bios images, and drop 5x
       reading on PROM
     - 63aa210... Implement bios I2C opcode 4E (untested)
     - a81f159... Handle I2C device 0xff fallback for I2C bios opcodes
     - 34e967e... Fix pasta error in bios opcode 4D
     - 786dd36... Fix nv04+ IFC upload and frag prog upload
-    - 3ab65cf... add vm_vram_base field to nouveau_device instead of 
+    - 3ab65cf... add vm_vram_base field to nouveau_device instead of
       hardcoding 512MiB
     - d833c81... nv50/xv: previous xv commit was bonged - fix that
     - 0f741eb... exa: small cleanup
-    - c10c3c9... exa: mass renaming and movement of nv04 solid/copy code to 
+    - c10c3c9... exa: mass renaming and movement of nv04 solid/copy code to
       nv04_exa.c
     - 81ace5d... exa: remove driver pixmaps path that never worked here anyway
     - 4b1829e... exa: remove NVCopyROP table..
@@ -802,15 +802,15 @@ xserver-xorg-video-nouveau (1:0.0.10~git+20090205+4dfd0b1-1) experimental; urgen
     - 4c9346b... bo_del->bo_ref, closer to ng api
     - c533f86... exa: same for UTS state
     - 02677c0... exa: ensure DFS state is updated across flushes
-    - 69d02bc... nv50: remove some redundant init, this stuff is done as 
+    - 69d02bc... nv50: remove some redundant init, this stuff is done as
       required now
     - 60aea90... nv50: forgotten buffer access flags during init
     - 5a382dd... nv10/exa: resubmit state in composite as needed
     - d4ff8db... nv30/exa: resubmit state in composite as needed
     - b71ebcb... nv40/exa: resubmit state in composite as necessary
-    - 6ddaddb... exa: rework common pre-nv50 code in the same way nv50 code 
+    - 6ddaddb... exa: rework common pre-nv50 code in the same way nv50 code
       just was
-    - f36fa31... nv50/xv: ensure entire frame will fit in pushbuf without 
+    - f36fa31... nv50/xv: ensure entire frame will fit in pushbuf without
       causing a flush
     - 1b48331... nv50/exa: ensure buffer usage is tracked correctly
     - 7e64426... remove unconditional FIRE_RING() in DoneComposite() hooks
@@ -819,23 +819,23 @@ xserver-xorg-video-nouveau (1:0.0.10~git+20090205+4dfd0b1-1) experimental; urgen
     - 1eb8b87... Enable ShadowFB for DRM-less mode.
     - 4874638... Allow NoAccel operation without the DRM module present.
     - f78aeed... if CARD_INIT ioctl fails, report it instead of continuing
-    - cf65b87... Fix stupidity introduced in 
+    - cf65b87... Fix stupidity introduced in
       25de6b867f319099dac05ba84f170da0f0e6c803
-    - 55e9cdd... Split out a function for finding the panel power sequencer 
+    - 55e9cdd... Split out a function for finding the panel power sequencer
       stuff
     - 1b3546b... Move the bios flat-panel pointers back into the bios struct
-    - d29c481... Remove a BITism from BMP parsing path, and move old style 
+    - d29c481... Remove a BITism from BMP parsing path, and move old style
       BMP init into common path
-    - 3e971f6... randr12: lock independent crtc base registers separately 
+    - 3e971f6... randr12: lock independent crtc base registers separately
       (#19620)
     - ffbca72... randr12: code motion and allow ramdac580 setting on nv40
-    - 75a0376... randr12: better selection of nv4x single pll mode and some 
+    - 75a0376... randr12: better selection of nv4x single pll mode and some
       notes
-    - 767fcea... randr12: no mmiotrace indication that the blob ever clears 
+    - 767fcea... randr12: no mmiotrace indication that the blob ever clears
       these bits
-    - 985ac72... randr12: no mmiotrace evidence for nv47 using the special 
+    - 985ac72... randr12: no mmiotrace evidence for nv47 using the special
       pll bits
-    - 3ef6b41... twoStagePLL is actually a description of cards using two PLL 
+    - 3ef6b41... twoStagePLL is actually a description of cards using two PLL
       regs
     - c7a423a... nv04 blitter: use correct number of dma params for real nv04
     - 25de6b8... Complain more about weird bios images
@@ -844,7 +844,7 @@ xserver-xorg-video-nouveau (1:0.0.10~git+20090205+4dfd0b1-1) experimental; urgen
     - 8a25049... Make turning on bios execution logging slightly easier
     - 54d43c4... nv50: small fix
     - 5c9f8d3... nv50: Add a fallback for non-repeating XRGB pixmaps.
-    - 0321e67... nv50: don't segfault if preinit fails before display setup 
+    - 0321e67... nv50: don't segfault if preinit fails before display setup
       done
   * Don't include .git in .orig.tar.gz.
   * Replace "(C)" in debian/copyright with "©" to appease lintian.
@@ -864,13 +864,13 @@ xserver-xorg-video-nouveau (1:0.0.10~git+20090105+7dc567d-1) experimental; urgen
     - f7a7578... nv50: implement set_origin (mostly used for panning)
     - 74b2e4e... configure: Avoid compiling drm modesetting code by accident.
     - d104f14... nv50: Improve lut code.
-    - 20f93a9... randr12: pass cursor visibility changes through mode state 
+    - 20f93a9... randr12: pass cursor visibility changes through mode state
       structures
     - 763e0f8... randr12: allow ddc while crtc is locked
     - 9d8bd45... Punt all bios structs and defines into a new header
-    - a34a2c0... Do not attempt to parse FP mode tables for Mac laptops 
+    - a34a2c0... Do not attempt to parse FP mode tables for Mac laptops
       (#18636)
-    - 1aba513... nv50: program physical addresses into CRTCs, not VM 
+    - 1aba513... nv50: program physical addresses into CRTCs, not VM
       addresses.
     - 65b956f... randr12: fix stupidity from 539f4990
     - 1666e85... nv50: use bios provided load detect value
@@ -891,39 +891,39 @@ xserver-xorg-video-nouveau (1:0.0.10~git+20081028+cea05e1-1) experimental; urgen
     - 36c6aa4... Allow more time in INIT_CONDITION_TIME (#18234)
     - bf810b3... More warnings for C51's magical unaligned regs
     - d481b5e... Rework bios parser error handling
-    - 387f308... RivaTuner dumps call the `how much memory have I got?' reg 
+    - 387f308... RivaTuner dumps call the `how much memory have I got?' reg
       NV_PFB_CSTATUS
     - bb20175... pedantry fix for nv11 locking, and some minor cleanups
     - 9aecc42... Add a function to lock/unlock all crtcs, use it in nv_bios
       code
-    - 48581da... Attempt to make the usage of cr44 rational instead of 
+    - 48581da... Attempt to make the usage of cr44 rational instead of
       cargoculted
     - 1c7bee9... Robust nv11 head setting (from mmiotrace)
     - cf5162b... randr12: update scrn field on server regen, and emit an error
       if rotated
     - 13739cf... randr12: don't change virtualX/virtualY
-    - 98a4dcb... Delete notifiers and grobjs in CloseScreen to avoid channel 
+    - 98a4dcb... Delete notifiers and grobjs in CloseScreen to avoid channel
       member becoming stale on server regeneration
-    - 12fce00... Remove all object with mmaps in CloseScreen, so that 
+    - 12fce00... Remove all object with mmaps in CloseScreen, so that
       drmClose actually calls the drm release method
-    - 8e3f27a... No reason to call AccelCommonInit twice in ScreenInit, but 
+    - 8e3f27a... No reason to call AccelCommonInit twice in ScreenInit, but
       calling it in EnterVT helps resume...
-    - f495fa9... nouveau_channel_free should remove mmaps made in 
+    - f495fa9... nouveau_channel_free should remove mmaps made in
       nouveau_channel_alloc
     - 1cedb8e... Do frag prog allocation and shader upload in TCL init
     - 9e2c089... Only hackup shaders once
     - afc6668... cr26 is just another view of 0x3c0
     - 539f499... Use symbolic define values where known
-    - 791666a... Convert CIO, DIO and VIO use to use defines from nvreg for 
+    - 791666a... Convert CIO, DIO and VIO use to use defines from nvreg for
       index and data reg offsets
-    - a1b7f8d... Rename relevant functions, sizes and offsets to PRM.IO from 
+    - a1b7f8d... Rename relevant functions, sizes and offsets to PRM.IO from
       P.IO, in keeping with the nvidia scheme
     - 267c0ee... Name crtc index regs according to rules.xml
     - 9261c34... SaveGeneration isn't doing a lot
     - c29c190... Replace a few memsets with initializers
     - 3b53f6c... Eliminate separate NVRec ctor and dtor
     - 1b18db2... randr12: remove pointless debug in nv_output and nv_crtc
-    - 240d51d... randr12: deBoolification and eliminate `override' arg to 
+    - 240d51d... randr12: deBoolification and eliminate `override' arg to
       nv_crtc_load_state_ext
     - b95c3e2... Make all CR 57/58 access use the proper functions and defines
     - 9988ae5... Redo bios logging
@@ -938,46 +938,46 @@ xserver-xorg-video-nouveau (1:0.0.10~git+20081028+cea05e1-1) experimental; urgen
 xserver-xorg-video-nouveau (1:0.0.10~git+20081012+3b53f6c-1) experimental; urgency=low
 
   * New upstream snapshot:
-    - bf585ad... The fifo channel should be removed along with closing of the 
+    - bf585ad... The fifo channel should be removed along with closing of the
       fd, so only clear the client memory.
     - 8b7e424... git-log is no longer valid for git 1.6, switch to git log.
-    - 933fd80... Some fixes that bring me closer to surviving to the 2nd X 
+    - 933fd80... Some fixes that bring me closer to surviving to the 2nd X
       server generation.
     - daee3c3... randr12: separate cursor pixmap location setting function
-    - caf2e92... Move cursor show/hide funcs to nv_hw, document nv40 bug, and 
+    - caf2e92... Move cursor show/hide funcs to nv_hw, document nv40 bug, and
       set curctl2 before applying nv40 fix
-    - f76074c... Use correct refclk for nv_get_clock, and use bool type as 
+    - f76074c... Use correct refclk for nv_get_clock, and use bool type as
       appropriate in arbitration
-    - bd5b807... Tidy arbitration prototypes and split randr12 cursor pixmap 
+    - bd5b807... Tidy arbitration prototypes and split randr12 cursor pixmap
       setting from arbitration
-    - 5dc41fd... Merge nv4, nv10 and nForce UpdateArbitrationSettings 
+    - 5dc41fd... Merge nv4, nv10 and nForce UpdateArbitrationSettings
       functions
     - 0ffd012... Add PCI slot reading defines, and use them for nForce code
     - 520a76e... Some tidying of arbitration functions
     - 3ceb2b6... Reindent arbitration stuff
     - d7439fc... Wrap usleep when called in bios code
-    - 62cf9f3... randr12: don't use in use (by another vga output) crtc for 
+    - 62cf9f3... randr12: don't use in use (by another vga output) crtc for
       load detect (avoids flicker)
     - f1d0fd0... Better behaviour on allocator fail
     - 2b67015... randr12: reorder nv_output functions
     - 9f4eef0... randr12: distinguish detected encoder from active encoder
     - 549cda1... Reduce includes, everything necessary is in nv_include.h
     - 30eaa0f... Oops.
-    - 2481e56... Optimizing memory usage for unaccelerated case is not 
+    - 2481e56... Optimizing memory usage for unaccelerated case is not
       interesting
     - 19f0ea6... randr12: rename mon -> edid
     - 0cb0817... randr12: crtc destroy
-    - 37adca1... Need to increment dcb entry index when fabricating 
+    - 37adca1... Need to increment dcb entry index when fabricating
       additional entries
     - e6b6d8c... Also remove man page entry.
-    - cb1e9c1... NV50: remove {Prepare,Finish}Access since i realise now it's 
+    - cb1e9c1... NV50: remove {Prepare,Finish}Access since i realise now it's
       not so useful
     - 3e397f5... NV50: The TMDS dual link threshold is meaningless for LVDS
     - 599d258... randr12: multiple encoders per connector (DVI-I)
     - 5e8ac84... nv50: 0xa0 family uses class 0x8397 for 3D
-    - 9c36eef... randr12: avoid weirdness when tv-out happens to share 
+    - 9c36eef... randr12: avoid weirdness when tv-out happens to share
       i2c_index with another output
-    - 144b04a... randr12: fix dpms, detect, destroy, save and restore for 
+    - 144b04a... randr12: fix dpms, detect, destroy, save and restore for
       multiple encoders per connector
     - 2b30b89... randr12: re-do detection of dvi-a vs vga
     - 50bac3f... randr12: unify output funcs for analogue and tmds
@@ -986,30 +986,30 @@ xserver-xorg-video-nouveau (1:0.0.10~git+20081012+3b53f6c-1) experimental; urgen
     - 0a5119b... randr12: separate encoder struct
     - 352b8fd... Another DCB 1.4/1.5 TV (#17471)
     - e8ba4e0... Only use OF bios image on PPC
-    - 54b8a7e... nv50/exa: work around corruption issues (see detailed commit 
+    - 54b8a7e... nv50/exa: work around corruption issues (see detailed commit
       msg)
-    - f8c0af3... Partly revert ea152819f45b6cf92f6742ed3f9f639cdbbd53f0, 
+    - f8c0af3... Partly revert ea152819f45b6cf92f6742ed3f9f639cdbbd53f0,
       alignment is needed.
     - ea15281... exa: align offscreenBase to something sensible
     - 95c19b9... Add 8200 detection.
     - 6dd8ad4... nv50: solid fill shouldn't use a pattern rop + minor changes
     - b2b726d... randr12: merge output detection functions
-    - a223e58... randr12: remember the edid from detection for getting modes 
+    - a223e58... randr12: remember the edid from detection for getting modes
       later
-    - 16d9e89... randr12: detypedef private structs and use a define to get 
+    - 16d9e89... randr12: detypedef private structs and use a define to get
       to the privates
     - 3b3f3cd... Remove unused code
     - 1e2b87c... randr12: make the nouveau experience less green
     - f89af0e... nv50: micro cleanup
     - 94bf106... nv50: do ROPs properly this time
-    - 6bd14e4... nv10: composite is an async operation by default, no need to 
+    - 6bd14e4... nv10: composite is an async operation by default, no need to
       call exaMarkSync().
     - 9f11d13... exa: FIRE_RING at the end of composite
     - 137d099... nv50: move VERTEX_{START,END} to {Prepare,Done}Composite
     - 34dc05f... nv50: minor tweaks to composite
     - eca9977... nv50: handle ROPs better
     - e468df8... nv50: clip SIFC and add {Prepare,Finish}Access hooks.
-    - 0c0c1ab... randr12: don't cache pll values (fixes newrestore removal 
+    - 0c0c1ab... randr12: don't cache pll values (fixes newrestore removal
       regression)
     - 544fd3c... Remove some of the inaccuracies in the manpage
     - e3d9cb9... NV_ARCH_04 can have rotated output, it's just not accelerated
@@ -1019,7 +1019,7 @@ xserver-xorg-video-nouveau (1:0.0.10~git+20081012+3b53f6c-1) experimental; urgen
     - a9393a8... Micro-tidyups to nv_driver and nouveau_xv
     - 8ed30d0... randr12: a few line length improvements
     - 666ab70... Kill some 8 bit code.
-    - bee8450... Fix IFC for 16bpp. Also fix the color accuracy of 16bpp 
+    - bee8450... Fix IFC for 16bpp. Also fix the color accuracy of 16bpp
       solid fills.
     - 609b10f... 0x48 exception does not apply on BIT cards
     - a9e2d47... randr12: some code simplification, rearrangement and tidying
@@ -1031,19 +1031,19 @@ xserver-xorg-video-nouveau (1:0.0.10~git+20081012+3b53f6c-1) experimental; urgen
     - 8793bb1... Apply minimum front porch only when necessary (#15949)
     - 83bb26f... NV50: disallow doublescan modes on TMDS/LVDS
     - 7d5b345... NV50: extra warning message
-    - 743c696... NV50: a half decent attempt at doing something when LVDS has 
+    - 743c696... NV50: a half decent attempt at doing something when LVDS has
       no DDC
     - fcbaa10... Forgot something.
     - 628acdd... NV50: support extended i2c ports (4 and 5)
     - c845f5a... nv50: fix some of the rendering bugs
-    - 1828820... Redo parsing for panels with EDID, and fix nv3x in the 
+    - 1828820... Redo parsing for panels with EDID, and fix nv3x in the
       process (#17138)
     - c9d4e86... Try harder to load a good vbios image
-    - ae59478... Deal with mobile cards that scribble over the fp strap at 
+    - ae59478... Deal with mobile cards that scribble over the fp strap at
       POST
-    - 7766706... Fix a 16bpp issue, also remove old code that mostly worked 
+    - 7766706... Fix a 16bpp issue, also remove old code that mostly worked
       around core EXA issues in older xservers.
-    - 6854f81... NV50: Disable messages from hide, show and load cursor, as 
+    - 6854f81... NV50: Disable messages from hide, show and load cursor, as
       they clutter the logs.
     - 4b24be8... xv: fix thinko from when source was reformatted
     - 30f54f2... g3dvl: Temporarily disable IDCT.
@@ -1060,21 +1060,21 @@ xserver-xorg-video-nouveau (1:0.0.10~git+20080803+30f54f2-1) experimental; urgen
     - 89d7864... nv50: fix mystery typo
     - c0b67f3... remove use of implicit variables from pushbuf macros
     - 80278c9... g3dvl: Basic XvMC initialization.
-    - 1f8e27f... NV50: I was proven wrong quicker than i thought, reinstate a 
+    - 1f8e27f... NV50: I was proven wrong quicker than i thought, reinstate a
       slightly prettier hack.
     - 41d46f5... NV50: forgot something
-    - 1b90524... NV50: my best guess at the lvds bios table, time will tell 
+    - 1b90524... NV50: my best guess at the lvds bios table, time will tell
       if it's correct for more than a few cases
     - f3ec6e0... nouveau: fix macro as pointed out my moondrake on irc
     - 6652e9c... nv50: support YUY2 in textured video adaptor
     - 3534f40... nv50: remove 32bpp solid fill fallback
-    - 87f7d1f... Revert "NV50EXA: read the notes + cleanup + enabled 32bpp 
+    - 87f7d1f... Revert "NV50EXA: read the notes + cleanup + enabled 32bpp
       solid fill"
     - ba7c239... NV50EXA: serious brain fart of my part, sorry
     - 0b6249f... NV50EXA: read the notes + cleanup + enabled 32bpp solid fill
-    - edbfbd0... EXA: put NOUVEAU_FALLBACK in a do { } while (0), fixed opera 
+    - edbfbd0... EXA: put NOUVEAU_FALLBACK in a do { } while (0), fixed opera
       corruption for me.
-    - 36d1308... NV50_KMS: some basic scaling and dithering output property 
+    - 36d1308... NV50_KMS: some basic scaling and dithering output property
       support
     - 022a9ed... nv50: no more sync in composite() :)
     - 6d8096c... nv50: sync after composite for the moment
@@ -1083,15 +1083,15 @@ xserver-xorg-video-nouveau (1:0.0.10~git+20080803+30f54f2-1) experimental; urgen
     - 98a9056... nv50: remove acquire/release surface stuff
     - f0305a2... exa: rename m2mf locals to prevent some confusion
     - 140c36e... randr12: fix dithering output property endian issue (#16624)
-    - b36802f... Fix for #14858 - freebsd compile. Someone still needs to fix 
+    - b36802f... Fix for #14858 - freebsd compile. Someone still needs to fix
       the kernel part though.
     - 6f5e90a... nv30: more header name changes...
     - 4b8427a... nv30: more bustage from header update
-    - 1672a78... nv30: un-change something that somehow changed in an earlier 
+    - 1672a78... nv30: un-change something that somehow changed in an earlier
       commit. oops!
     - dae5958... nv50: exa/xv share some stuff, punt it out to nv50_accel.[ch]
     - 17fbd81... nv50: Xv support
-    - ec45278... nv50: de-magic things before someone accuses me of being an 
+    - ec45278... nv50: de-magic things before someone accuses me of being an
       NVIDIA employee
     - ad56c5e... nv50: exa composite
     - 33fad27... nv50: tile offscreen pixmaps
@@ -1109,12 +1109,12 @@ xserver-xorg-video-nouveau (1:0.0.10~git+20080706+b1f3169-1) experimental; urgen
     - 86c70df... NV50_KMS: support gamma changes
     - 6de89c8... NV50: Unaccelerated rotation support.
     - 788fefa... NV50_KMS: Unaccelerated rotation support.
-    - 2bc1cb8... Revert "EXA: Add PixmapIsOffscreen hook for EXA versions 
+    - 2bc1cb8... Revert "EXA: Add PixmapIsOffscreen hook for EXA versions
       that allow it."
-    - 5a5aee1... EXA: Add PixmapIsOffscreen hook for EXA versions that allow 
+    - 5a5aee1... EXA: Add PixmapIsOffscreen hook for EXA versions that allow
       it.
     - b9f2358... xv: remove some defines that are in a header now
-    - 9f53b2a... xv: remove drawable handling from hw-specific PutImage.. 
+    - 9f53b2a... xv: remove drawable handling from hw-specific PutImage..
       it's common...
     - a50bba6... xv: misc cleanups
     - 08e9489... NV50_KMS: minor change
@@ -2371,7 +2371,7 @@ xserver-xorg-video-nouveau-trunk (1.2.0~git20070812-0ppa1) gutsy; urgency=low
 
 xserver-xorg-video-nouveau-trunk (1.2.0~git20070811~2-0ppa1) gutsy; urgency=low
 
-  * New snapshot b3e4da61e8c846d8d3f01b015cb7155da4e266e9 to fix segfault on 
+  * New snapshot b3e4da61e8c846d8d3f01b015cb7155da4e266e9 to fix segfault on
     startup
   * Build-depend on git, so useful debug information is retained
 

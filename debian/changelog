@@ -8,6 +8,7 @@ xserver-xorg-video-nouveau (1:1.0.15-3) UNRELEASED; urgency=medium
   * Update Vcs-* fields to point at salsa.debian.org.
   * Use https in debian/watch.
   * Bump debhelper compat level to 11.
+    - Drop dh-autoreconf from Build-Depends.
 
  -- Sven Joachim <svenjoac@gmx.de>  Sun, 24 Jun 2018 18:46:02 +0200
 

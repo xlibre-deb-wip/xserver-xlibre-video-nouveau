@@ -4,7 +4,7 @@ Priority: optional
 Maintainer: Debian X Strike Force <debian-x@lists.debian.org>
 # Uploaders: nobody, volunteers needed!
 Build-Depends:
- debhelper (>= 11),
+ debhelper-compat (= 13),
  pkg-config,
  xserver-xorg-dev (>= 2:1.9.4),
  x11proto-dev,

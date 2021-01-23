@@ -5,6 +5,7 @@ xserver-xorg-video-nouveau (1:1.0.17-1) UNRELEASED; urgency=medium
 
   [ Sven Joachim ]
   * New upstream release.
+  * Explicitly specify source format 1.0.
 
  -- Timo Aaltonen <tjaalton@debian.org>  Wed, 15 Apr 2020 00:02:52 +0300
 

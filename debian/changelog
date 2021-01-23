@@ -11,6 +11,7 @@ xserver-xorg-video-nouveau (1:1.0.17-1) UNRELEASED; urgency=medium
     - Build-depend on debhelper-compat (= 13) and drop debian/compat.
     - Drop the dh_missing override, redundant in that compat level.
   * Remove NEWS.Debian, no longer relevant.
+  * Bump Standards-Version to 4.5.1, no changes needed.
 
  -- Timo Aaltonen <tjaalton@debian.org>  Wed, 15 Apr 2020 00:02:52 +0300
 

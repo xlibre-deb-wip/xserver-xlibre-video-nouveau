@@ -10,8 +10,6 @@ Build-Depends:
  x11proto-dev,
  libdrm-dev (>= 2.4.60),
  libudev-dev,
- automake,
- libtool,
  xutils-dev,
  quilt (>= 0.63-8.2~),
 Standards-Version: 4.6.0

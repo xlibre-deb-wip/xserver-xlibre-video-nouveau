@@ -8,10 +8,10 @@ Build-Depends:
  pkg-config,
  xserver-xorg-dev (>= 2:21.1),
  x11proto-dev,
- libdrm-dev (>= 2.4.60),
+ libdrm-dev,
  libudev-dev,
  xutils-dev,
- quilt (>= 0.63-8.2~),
+ quilt,
 Standards-Version: 4.6.0
 Rules-Requires-Root: no
 Homepage: https://nouveau.freedesktop.org/wiki/
@@ -24,7 +24,7 @@ Depends:
  ${shlibs:Depends},
  ${misc:Depends},
  ${xviddriver:Depends},
-Recommends: libgl1-mesa-dri (>= 9.0)
+Recommends: libgl1-mesa-dri
 Suggests: firmware-misc-nonfree
 Provides: ${xviddriver:Provides}
 Description: X.Org X server -- Nouveau display driver

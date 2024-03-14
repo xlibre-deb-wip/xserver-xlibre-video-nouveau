@@ -9,6 +9,7 @@ xserver-xorg-video-nouveau (1:1.0.17-3) UNRELEASED; urgency=medium
   [ Sven Joachim ]
   * Build with DEB_BUILD_MAINT_OPTIONS=qa=-bug-implicit-func for now
     (Closes: #1066382).
+  * Build-Depend on pkgconf rather than on pkg-config.
 
  -- Debian Janitor <janitor@jelmer.uk>  Thu, 17 Mar 2022 09:17:35 -0000
 

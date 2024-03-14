@@ -5,7 +5,7 @@ Maintainer: Debian X Strike Force <debian-x@lists.debian.org>
 # Uploaders: nobody, volunteers needed!
 Build-Depends:
  debhelper-compat (= 13),
- pkg-config,
+ pkgconf,
  xserver-xorg-dev (>= 2:21.1),
  x11proto-dev,
  libdrm-dev,

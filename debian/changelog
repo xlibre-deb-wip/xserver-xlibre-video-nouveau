@@ -1,9 +1,14 @@
 xserver-xorg-video-nouveau (1:1.0.17-3) UNRELEASED; urgency=medium
 
+  [ Debian Janitor ]
   * Remove constraints unnecessary since buster:
     + Build-Depends: Drop versioned constraint on libdrm-dev and quilt.
     + xserver-xorg-video-nouveau: Drop versioned constraint on libgl1-mesa-dri
       in Recommends.
+
+  [ Sven Joachim ]
+  * Build with DEB_BUILD_MAINT_OPTIONS=qa=-bug-implicit-func for now
+    (Closes: #1066382).
 
  -- Debian Janitor <janitor@jelmer.uk>  Thu, 17 Mar 2022 09:17:35 -0000
 

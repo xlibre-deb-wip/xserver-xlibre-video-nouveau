@@ -1,3 +1,9 @@
+xserver-xorg-video-nouveau (1:1.0.18-1) UNRELEASED; urgency=medium
+
+  * New upstream release (Closes: #1095224).
+
+ -- Sven Joachim <svenjoac@gmx.de>  Thu, 06 Feb 2025 17:25:32 +0100
+
 xserver-xorg-video-nouveau (1:1.0.17-3) unstable; urgency=medium
 
   * Team upload.

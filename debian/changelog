@@ -5,6 +5,8 @@ xserver-xorg-video-nouveau (1:1.0.18-1) UNRELEASED; urgency=medium
   * Stop building with DEB_BUILD_MAINT_OPTIONS=qa=-bug-implicit-func
     accordingly.
   * Drop patch added in version 1:1.0.17-2, applied upstream.
+  * Add Matt Turner's key 16238A7D92448B02B7B10344B6B1CEAE5103DB07 to
+    debian/upstream/signing-key.asc.
   * Bump Standards-Version to 4.7.0, no changes needed.
 
  -- Sven Joachim <svenjoac@gmx.de>  Thu, 06 Feb 2025 17:25:32 +0100

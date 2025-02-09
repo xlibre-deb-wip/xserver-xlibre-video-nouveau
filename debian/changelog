@@ -9,6 +9,7 @@ xserver-xorg-video-nouveau (1:1.0.18-1) UNRELEASED; urgency=medium
     debian/upstream/signing-key.asc.
   * Switch to format 3.0 (quilt).
     - Drop quilt from Build-Depends and delete debian/README.source.
+  * Change Homepage field to https://nouveau.freedesktop.org/.
   * Bump Standards-Version to 4.7.0, no changes needed.
 
  -- Sven Joachim <svenjoac@gmx.de>  Thu, 06 Feb 2025 17:25:32 +0100

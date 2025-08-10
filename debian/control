@@ -27,13 +27,13 @@ Suggests: firmware-misc-nonfree
 Provides:
  xserver-xorg-video-nouveau,
  ${xviddriver:Provides}
-Description: X.Org X server -- Nouveau display driver
- This driver for the X.Org X server (see xserver-xorg for a further description)
+Description: XLibre X server -- Nouveau display driver
+ This driver for the XLibre X server (see xserver-xlibre for a further description)
  provides support for NVIDIA Riva, TNT, GeForce, and Quadro cards.
  .
  This package provides 2D support including EXA acceleration, Xv and
  RandR.  3D functionality is provided by the libgl1-mesa-dri package.
  .
- This package is built from the FreeDesktop.org xf86-video-nouveau driver.
+ This package is built from the XLibre xf86-video-nouveau driver.
 Conflicts:
  xserver-xorg-video-nouveau,

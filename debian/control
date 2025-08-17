@@ -25,7 +25,7 @@ Depends:
 Recommends: libgl1-mesa-dri
 Suggests: firmware-misc-nonfree
 Provides:
- xserver-xorg-video-nouveau,
+ xserver-xorg-video-nouveau (= ${binary:Version}),
  ${xviddriver:Provides}
 Description: XLibre X server -- Nouveau display driver
  This driver for the XLibre X server (see xserver-xlibre for a further description)
